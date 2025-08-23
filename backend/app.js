@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -48,6 +49,9 @@ mongoose.connect(process.env.MONGO_URI, {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
+app.use("/api/notifications", notificationRoutes);
+
+
 
 // Default route
 app.get('/', (req, res) => {

@@ -98,7 +98,7 @@ export default function LoginPage() {
             {/* Link */}
             <p className="text-center text-sm text-gray-600 mt-4">
               Don’t have an account?{" "}
-              <Link to="/register" className="text-green-600 hover:underline">
+              <Link to="/" className="text-green-600 hover:underline">
                 Create one
               </Link>
             </p>

@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import Notification from "../models/notificationModel.js";
 
 // Register Controller
 export async function authRegister(req, res) {
@@ -39,7 +40,7 @@ export async function authRegister(req, res) {
     const savedUser = await newUser.save();
 
     const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
     res.cookie("token", token, {
       httpOnly: true,
@@ -89,7 +90,7 @@ export async function authLogin(req, res) {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
 
     res.cookie("token", token, {
@@ -123,7 +124,7 @@ export async function authProfile(req, res) {
   .select("-password")
   .populate({
     path: "posts",
-    select: "title content imageUrl createdAt author",
+    select: "title  imageUrl createdAt author",
   });
 
 
@@ -183,3 +184,134 @@ export async function updateProfile(req, res) {
     res.status(500).json({ message: "Failed to update profile" });
   }
 }
+
+// Logout route
+export const authLogout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // cookie only over HTTPS in prod
+    sameSite: "strict",
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
+}
+
+// Get user by username
+export async function getUserByUsername(req, res) {
+  try {
+    const user = await User.findOne({ username: req.params.username })
+      .select("-password")
+      .populate("posts", "title imageUrl createdAt");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      ...user._doc,
+      profilePicture: user.profilePicture
+        ? `${req.protocol}://${req.get("host")}${user.profilePicture}`
+        : null,
+      posts: (user.posts || []).map(post => ({
+        ...post._doc,
+        imageUrl: post.imageUrl
+          ? `${req.protocol}://${req.get("host")}${post.imageUrl.replace(/^https?:\/\/[^/]+/, "")}`
+          : null,
+      })),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+// Search users by username
+export async function searchUsers(req, res) {
+  try {
+    const query = req.query.q?.trim();
+
+    if (!query) {
+      return res.json([]);
+    }
+
+    // Find users by username (case-insensitive)
+    const users = await User.find({
+      username: { $regex: query, $options: "i" },
+    }).select("username fullName profilePicture followers");
+
+    // Format response (and check if logged-in user follows them)
+    const formattedUsers = users.map((user) => ({
+      _id: user._id,
+      username: user.username,
+      fullName: user.fullName,
+      profilePicture: user.profilePicture
+        ? `${req.protocol}://${req.get("host")}${user.profilePicture}`
+        : null,
+      isFollowing: user.followers.includes(req.user?.id), // true/false
+    }));
+
+    res.json(formattedUsers);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+export const followUser = async (req, res) => {
+  try {
+    if (req.user.id === req.params.id) {
+      return res.status(400).json({ message: "You can't follow yourself" });
+    }
+
+    const userToFollow = await User.findById(req.params.id);
+    const currentUser = await User.findById(req.user.id);
+
+    if (!userToFollow.followers.includes(req.user.id)) {
+      userToFollow.followers.push(req.user.id);
+      currentUser.following.push(req.params.id);
+
+      await userToFollow.save();
+      await currentUser.save();
+
+      // 🔔 notify followed user
+      await Notification.create({
+        sender: req.user.id,
+        recipient: userToFollow._id,
+        type: "follow",
+      });
+
+      res.status(200).json({ message: "User followed" });
+    } else {
+      res.status(400).json({ message: "You already follow this user" });
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// 👉 Unfollow a user
+export const unfollowUser = async (req, res) => {
+  try {
+    if (req.user.id === req.params.id) {
+      return res.status(400).json({ message: "You can't unfollow yourself" });
+    }
+
+    const userToUnfollow = await User.findById(req.params.id);
+    const currentUser = await User.findById(req.user.id);
+
+    if (userToUnfollow.followers.includes(req.user.id)) {
+      userToUnfollow.followers.pull(req.user.id);
+      currentUser.following.pull(req.params.id);
+
+      await userToUnfollow.save();
+      await currentUser.save();
+
+      res.status(200).json({ message: "User unfollowed" });
+    } else {
+      res.status(400).json({ message: "You don't follow this user" });
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
