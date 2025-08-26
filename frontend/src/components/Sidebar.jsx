@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { UserCircle, Users, PlusCircle, Home } from "lucide-react";
+import { UserCircle, Users, PlusCircle, Home, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Sidebar() {
@@ -19,6 +19,7 @@ export default function Sidebar() {
 
     { to: "/create-post", icon: <PlusCircle size={22} />, label: "Create Post" },
     { to: "/friends", icon: <Users size={22} />, label: "Friends" },
+    { to: "/messages", icon: <MessageCircle size={22} />, label: "Messages" },
   ];
 
   return (

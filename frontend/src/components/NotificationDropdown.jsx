@@ -3,6 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import { Bell } from "lucide-react";
 import api from "../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function NotificationsDropdown() {
   const [open, setOpen] = useState(false);
@@ -14,7 +17,9 @@ export default function NotificationsDropdown() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await api.get("/api/notifications", { withCredentials: true });
+        const res = await api.get("/api/notifications", {
+          withCredentials: true,
+        });
         setNotifications(res.data);
         setUnreadCount(res.data.filter((n) => !n.isRead).length);
       } catch (err) {
@@ -38,13 +43,38 @@ export default function NotificationsDropdown() {
   // Mark as read
   const markAsRead = async (id) => {
     try {
-      await api.put(`/api/notifications/${id}/read`, {}, { withCredentials: true });
+      await api.put(
+        `/api/notifications/${id}/read`,
+        {},
+        { withCredentials: true }
+      );
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       );
       setUnreadCount((prev) => Math.max(prev - 1, 0));
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
+    }
+  };
+
+  const handleFollowBack = async (userId) => {
+    try {
+      await api.put(
+        `/api/auth/${userId}/follow`,
+        {},
+        { withCredentials: true }
+      );
+
+      // ✅ update sender.isFollowed to true, so button changes text
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.sender._id === userId
+            ? { ...n, sender: { ...n.sender, isFollowed: true } }
+            : n
+        )
+      );
+    } catch (err) {
+      console.error("Error following back:", err);
     }
   };
 
@@ -93,21 +123,51 @@ export default function NotificationsDropdown() {
                     } hover:bg-gray-700`}
                     onClick={() => markAsRead(n._id)}
                   >
-                    {/* ✅ Sender profile picture instead of emoji icons */}
+                    {/* ✅ Sender profile picture */}
                     <img
-                      src={n.sender.profilePicture || "/avatar.png"}
+                      src={
+                        n.sender.profilePicture?.startsWith("http")
+                          ? n.sender.profilePicture
+                          : `${API_BASE_URL}${n.sender.profilePicture}`
+                      }
                       alt={n.sender.username}
                       className="w-10 h-10 rounded-full object-cover"
                     />
 
-                    <div className="flex flex-col">
+                    {/* ✅ Content wrapper */}
+                    <div className="flex-1 flex flex-col">
                       <p className="text-sm text-gray-200">
-                        <strong>{n.sender.username}</strong>{" "}
+                        <Link to={`/profile/${n.sender?.username}`}>
+                          <strong>{n.sender.username}</strong>{" "}
+                        </Link>
                         {n.type === "like" && "liked your post"}
                         {n.type === "comment" && "commented on your post"}
                         {n.type === "follow" && "started following you"}
                       </p>
-                      <span className="text-xs text-gray-400">
+
+                      {/* ✅ Follow button always aligned left */}
+                      {n.type === "follow" && (
+                        <div className="mt-1">
+                          <button
+                            className={`px-2 py-0.5 text-xs rounded-full transition-colors
+            ${
+              n.sender.isFollowed
+                ? "bg-gray-700 text-gray-300 cursor-default"
+                : "bg-purple-500 hover:bg-purple-600 text-white"
+            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!n.sender.isFollowed) {
+                                handleFollowBack(n.sender._id);
+                              }
+                            }}
+                          >
+                            {n.sender.isFollowed ? "Following" : "Follow Back"}
+                          </button>
+                        </div>
+                      )}
+
+                      <span className="text-xs text-gray-400 mt-1">
                         {new Date(n.createdAt).toLocaleString()}
                       </span>
                     </div>

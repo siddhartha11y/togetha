@@ -17,6 +17,7 @@ export const createNotification = async (req, res) => {
     });
 
     await notification.save();
+    console.log("Notification created:", notification);
     res.status(201).json(notification);
   } catch (error) {
     res.status(500).json({ message: "Error creating notification", error });
@@ -26,12 +27,21 @@ export const createNotification = async (req, res) => {
 // Get all notifications for logged-in user
 export const getUserNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find({ recipient: req.user.id })
-      .populate("sender", "username profilePicture")
-      .populate("post", "content image")
-      .sort({ createdAt: -1 });
+   const notifications = await Notification.find({ recipient: req.user.id })
+  .populate("sender", "username profilePicture followers")
+  .populate("post", "content image")
+  .sort({ createdAt: -1 });
 
-    res.status(200).json(notifications);
+const withFollowStatus = notifications.map((n) => ({
+  ...n._doc,
+  sender: {
+    ...n.sender._doc,
+    isFollowed: n.sender.followers.includes(req.user.id),
+  },
+}));
+
+res.status(200).json(withFollowStatus);
+
   } catch (error) {
     res.status(500).json({ message: "Error fetching notifications", error });
   }

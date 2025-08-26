@@ -133,16 +133,27 @@ export default function Profile() {
       </Link>
     </>
   ) : (
+     <div className="flex gap-2">
+    {/* Follow button */}
     <button
       onClick={handleFollow}
       className={`px-4 py-1 text-sm font-medium rounded-md transition-colors ${
-  isFollowing
-    ? "bg-gray-800 text-white hover:bg-gray-700"  // Dark background + white text
-    : "bg-blue-400 text-white hover:bg-blue-500"
-}`}
+        isFollowing
+          ? "bg-gray-800 text-white hover:bg-gray-700"
+          : "bg-blue-400 text-white hover:bg-blue-500"
+      }`}
     >
       {isFollowing ? "Following" : "Follow"}
     </button>
+
+    {/* 💬 Message button */}
+    <Link to={`/messages?user=${user._id}`}>
+      <button className="px-4 py-1 text-sm font-medium rounded-md bg-purple-600 hover:bg-purple-700 transition-colors">
+        Message
+      </button>
+    </Link>
+  </div>
+    
                 )}
               </div>
 

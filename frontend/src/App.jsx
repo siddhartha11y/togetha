@@ -11,8 +11,20 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EditProfile from "./pages/EditProfile";
 import EditPost from "./pages/EditPost";
+import ChatPage from "./pages/ChatPage";
+import MessagesPage from "./pages/MessagesPage";
+import useUserStore from "./store/userStore";
+import { useEffect } from "react";
+
+
 export default function App() {
   const { theme } = useThemeStore();
+  
+  const { user, loadUserFromCookie } = useUserStore();
+
+  useEffect(() => {
+    loadUserFromCookie(); // ✅ load user into Zustand
+  }, [loadUserFromCookie]);
 
   return (
     <div data-theme={theme} className="min-h-screen">
@@ -28,6 +40,8 @@ export default function App() {
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/posts/:id/edit" element={<EditPost />} />
+          <Route path="/chats/:chatId" element={<ChatPage />} />
+            <Route path="/messages" element={<MessagesPage />} />
           <Route path="/friends" element={<div>Friends Page</div>} />
         </Routes>
 
