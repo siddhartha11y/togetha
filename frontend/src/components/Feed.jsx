@@ -18,7 +18,9 @@ export default function Feed() {
         const postsRes = await api.get("/api/posts", { withCredentials: true });
         setPosts(postsRes.data);
 
-        console.log("Posts fetched successfully:", postsRes.data);
+        console.log("📊 Feed Debug - User:", userRes.data);
+        console.log("📊 Feed Debug - Posts:", postsRes.data);
+        console.log("📊 Feed Debug - First post likes:", postsRes.data[0]?.likes, postsRes.data[0]?.likedByUser);
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {

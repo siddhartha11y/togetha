@@ -95,7 +95,7 @@ export default function Profile() {
     <div className="bg-black text-white min-h-screen flex">
       {/* Sidebar */}
       <div className="hidden md:block border-r border-gray-800 w-64">
-        <Sidebar />
+        <Sidebar user={currentUser} />
       </div>
 
       {/* Main profile section */}

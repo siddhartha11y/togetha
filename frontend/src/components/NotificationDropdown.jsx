@@ -14,20 +14,89 @@ export default function NotificationsDropdown() {
   const dropdownRef = useRef(null);
 
   // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get("/api/notifications", {
+        withCredentials: true,
+      });
+      
+      // Update state with fresh data
+      setNotifications(res.data);
+      const newUnreadCount = res.data.filter((n) => !n.isRead).length;
+      setUnreadCount(newUnreadCount);
+      
+      // Update localStorage cache
+      localStorage.setItem('cachedNotifications', JSON.stringify({
+        notifications: res.data,
+        unreadCount: newUnreadCount,
+        timestamp: Date.now()
+      }));
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
+
+  // Fetch notifications on mount and when dropdown opens
   useEffect(() => {
-    const fetchNotifications = async () => {
+    // First check if there's a cached notification state in localStorage
+    const cachedNotifications = localStorage.getItem('cachedNotifications');
+    if (cachedNotifications) {
       try {
-        const res = await api.get("/api/notifications", {
-          withCredentials: true,
-        });
-        setNotifications(res.data);
-        setUnreadCount(res.data.filter((n) => !n.isRead).length);
+        const parsed = JSON.parse(cachedNotifications);
+        // Check if cache is still valid (less than 30 minutes old)
+        const isValid = Date.now() - parsed.timestamp < 30 * 60 * 1000;
+        
+        if (isValid) {
+          setNotifications(parsed.notifications);
+          setUnreadCount(parsed.unreadCount);
+        } else {
+          // Cache is too old, fetch fresh data
+          fetchNotifications();
+        }
       } catch (err) {
-        console.error("Error fetching notifications:", err);
+        console.error('Error parsing cached notifications:', err);
+        // If there's an error, fetch fresh data
+        fetchNotifications();
+      }
+    } else {
+      // No cache exists, fetch fresh data
+      fetchNotifications();
+    }
+    
+    // Set up a localStorage event listener to detect changes from other tabs
+    const handleStorageChange = (e) => {
+      if (e.key === 'notificationsUpdated') {
+        fetchNotifications();
       }
     };
-    fetchNotifications();
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+  
+  // Refresh notifications when dropdown opens
+  useEffect(() => {
+    if (open) {
+      // Check cache validity before fetching fresh data when dropdown opens
+      const cachedNotifications = localStorage.getItem('cachedNotifications');
+      if (cachedNotifications) {
+        try {
+          const parsed = JSON.parse(cachedNotifications);
+          const isValid = Date.now() - parsed.timestamp < 30 * 60 * 1000;
+          
+          // Only fetch if cache is invalid or if unreadCount is not 0 (meaning there might be new unread notifications)
+          if (!isValid || parsed.unreadCount > 0) {
+            fetchNotifications();
+          }
+        } catch (err) {
+          console.error('Error parsing cached notifications on dropdown open:', err);
+          fetchNotifications(); // Fetch if parsing error
+        }
+      } else {
+        fetchNotifications(); // No cache, fetch fresh data
+      }
+    }
+  }, [open]);
 
   // Close if clicked outside
   useEffect(() => {
@@ -41,17 +110,38 @@ export default function NotificationsDropdown() {
   }, []);
 
   // Mark as read
-  const markAsRead = async (id) => {
+  const markAsRead = async (id, type) => {
     try {
       await api.put(
         `/api/notifications/${id}/read`,
         {},
         { withCredentials: true }
       );
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      
+      // Update local state
+      const updatedNotifications = notifications.map((n) =>
+        n._id === id ? { ...n, isRead: true } : n
       );
-      setUnreadCount((prev) => Math.max(prev - 1, 0));
+      setNotifications(updatedNotifications);
+
+      // Calculate new unread count based on updatedNotifications
+      const newUnreadCount = updatedNotifications.filter((n) => !n.isRead).length;
+      setUnreadCount(newUnreadCount);
+
+      // Immediately update the localStorage cache to ensure persistence across refreshes
+      localStorage.setItem('cachedNotifications', JSON.stringify({
+        notifications: updatedNotifications,
+        unreadCount: newUnreadCount,
+        timestamp: Date.now()
+      }));
+      
+      // Notify other tabs/windows that notifications have been updated
+      localStorage.setItem('notificationsUpdated', Date.now().toString());
+      
+      // For story notifications, immediately fetch notifications again to ensure state is updated
+      if (type === 'story') {
+        fetchNotifications();
+      }
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
     }
@@ -121,7 +211,7 @@ export default function NotificationsDropdown() {
                     className={`flex items-start space-x-3 p-2 rounded cursor-pointer ${
                       n.isRead ? "bg-gray-800/50" : "bg-gray-800"
                     } hover:bg-gray-700`}
-                    onClick={() => markAsRead(n._id)}
+                    onClick={() => markAsRead(n._id, n.type)}
                   >
                     {/* ✅ Sender profile picture */}
                     <img
@@ -143,6 +233,7 @@ export default function NotificationsDropdown() {
                         {n.type === "like" && "liked your post"}
                         {n.type === "comment" && "commented on your post"}
                         {n.type === "follow" && "started following you"}
+                        {n.type === "story" && "shared a story with you"}
                       </p>
 
                       {/* ✅ Follow button always aligned left */}

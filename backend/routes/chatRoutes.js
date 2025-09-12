@@ -4,19 +4,26 @@ import {
   createOrGetOneToOneChat,
   getMyChats,
   createGroupChat,
+  getChatById,
+  deleteChat,
 } from "../controllers/chatController.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
 
 // 1:1 chat
-router.post("/:userId", createOrGetOneToOneChat);
+router.post("/:userId", verifyToken, createOrGetOneToOneChat);
 
 // my chats
-router.get("/", getMyChats);
+router.get("/", verifyToken, getMyChats);
 
 // group chat (optional for later UI)
-router.post("/group", createGroupChat);
+router.post("/group", verifyToken, createGroupChat);
+
+// ✅ get single chat by id
+router.get("/:chatId", verifyToken, getChatById);
+
+// ✅ delete chat by id
+router.delete("/:chatId", verifyToken, deleteChat);
 
 export default router;

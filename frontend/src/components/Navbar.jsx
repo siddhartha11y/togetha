@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { PlusCircle, LogOut, MessageCircle } from "lucide-react";
+import { PlusCircle, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { FiSearch } from "react-icons/fi";
 import api from "../api/axios";
 import NotificationsDropdown from "./NotificationDropdown";
+import MessageNotification from "./MessageNotification";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -244,14 +245,7 @@ export default function Navbar() {
            <NotificationsDropdown />
 
              {/* 💬 Messages */}
-        <motion.div whileHover={{ scale: 1.1 }}>
-          <Link
-            to="/messages"
-            className="text-gray-300 hover:text-purple-400 transition-all duration-300"
-          >
-            <MessageCircle size={24} />
-          </Link>
-        </motion.div>
+        <MessageNotification />
         {/* Profile */}
         <motion.div whileHover={{ scale: 1.05 }}>
           <Link

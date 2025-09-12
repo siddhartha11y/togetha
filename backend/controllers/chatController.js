@@ -30,10 +30,10 @@ export async function createOrGetOneToOneChat(req, res) {
       isGroup: false,
       participants: { $all: [me, userId], $size: 2 },
     })
-      .populate("participants", "_id username fullName avatar")
+      .populate("participants", "_id username fullName profilePicture")
       .populate({
         path: "latestMessage",
-        populate: { path: "sender", select: "_id username fullName avatar" },
+        populate: { path: "sender", select: "_id username fullName profilePicture" },
       });
 
     if (!chat) {
@@ -42,9 +42,9 @@ export async function createOrGetOneToOneChat(req, res) {
         participants: [me, userId],
       });
       chat = await Chat.findById(chat._id)
-        .populate("participants", "_id username fullName avatar");
+        .populate("participants", "_id username fullName profilePicture");
     }
-
+    console.log("✅ 1:1 chat fetched/created:", chat._id);
     return res.status(200).json(chat);
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
@@ -58,10 +58,10 @@ export async function getMyChats(req, res) {
 
     const chats = await Chat.find({ participants: me })
       .sort({ updatedAt: -1 })
-      .populate("participants", "_id username fullName avatar")
+      .populate("participants", "_id username fullName profilePicture")
       .populate({
         path: "latestMessage",
-        populate: { path: "sender", select: "_id username fullName avatar" },
+        populate: { path: "sender", select: "_id username fullName profilePicture" },
       });
 
     return res.status(200).json(chats);
@@ -86,10 +86,75 @@ export async function createGroupChat(req, res) {
     });
 
     const populated = await Chat.findById(chat._id)
-      .populate("participants", "_id username fullName avatar");
+      .populate("participants", "_id username fullName profilePicture");
 
     return res.status(201).json(populated);
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+
+// ✅ Get chat by ID
+export const getChatById = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const userId = req.user._id;
+
+    const chat = await Chat.findById(chatId)
+      .populate("participants", "_id username fullName profilePicture")
+      .populate({
+        path: "latestMessage",
+        populate: { path: "sender", select: "_id username fullName profilePicture" },
+      });
+
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    // Verify user is participant
+    if (!chat.participants.some(p => p._id.toString() === userId.toString())) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    res.json(chat);
+  } catch (err) {
+    console.error("Error fetching chat by ID:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Delete chat (and all its messages)
+export const deleteChat = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const userId = req.user._id;
+
+    // Find the chat and verify user is a participant
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    // Verify user is participant
+    if (!chat.participants.includes(userId)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Delete all messages in this chat
+    await Message.deleteMany({ chat: chatId });
+
+    // Delete the chat
+    await Chat.findByIdAndDelete(chatId);
+
+    console.log(`🗑️ Chat ${chatId} deleted by user ${userId}`);
+    
+    res.json({ 
+      success: true, 
+      message: "Chat and all messages deleted successfully" 
+    });
+  } catch (err) {
+    console.error("Error deleting chat:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

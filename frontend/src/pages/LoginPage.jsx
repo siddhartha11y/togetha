@@ -2,13 +2,17 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Users } from "lucide-react";
+import useUserStore from "../store/userStore";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { setUser } = useUserStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -16,17 +20,32 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
-        formData
+        formData,
+        { withCredentials: true }
       );
-      console.log(response.data);
+      
+      // Get user profile after successful login
+      const profileResponse = await axios.get(
+        "http://localhost:5000/api/auth/profile",
+        { withCredentials: true }
+      );
+      
+      // Store user data in Zustand store
+      setUser(profileResponse.data);
+      
+      console.log("Login successful:", profileResponse.data);
+      toast.success("Login successful!");
       navigate("/home");
     } catch (error) {
       console.error("Login failed", error);
-      alert(error.response?.data?.message || "Login failed. Try again.");
+      toast.error(error.response?.data?.message || "Login failed. Try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,9 +109,10 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {isLoading ? "Logging in..." : "Login"}
             </button>
 
             {/* Link */}

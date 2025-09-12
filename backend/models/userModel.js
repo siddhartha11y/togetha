@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: "/images/default-avatar.png", // better local default image
+      default: "/images/default-avatar.svg", // better local default image
     },
     bio: {
       type: String,

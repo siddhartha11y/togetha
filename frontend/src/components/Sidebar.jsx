@@ -1,9 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { UserCircle, Users, PlusCircle, Home, MessageCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { UserCircle, Users, PlusCircle, Home, MessageCircle, Camera, Compass } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import InstagramStoryCreator from "./InstagramStoryCreator";
+import CreatePostModal from "./CreatePostModal";
 
-export default function Sidebar() {
+export default function Sidebar({ user }) {
   const location = useLocation();
+  const [showCreateStoryModal, setShowCreateStoryModal] = useState(false);
+  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
 
   // Dynamic links depending on current route
   const links = [
@@ -17,7 +22,9 @@ export default function Sidebar() {
       ? [{ to: "/profile", icon: <UserCircle size={22} />, label: "My Profile" }]
       : []),
 
-    { to: "/create-post", icon: <PlusCircle size={22} />, label: "Create Post" },
+    { action: () => setShowCreatePostModal(true), icon: <PlusCircle size={22} />, label: "Create Post" },
+    { action: () => setShowCreateStoryModal(true), icon: <Camera size={22} />, label: "Create Story" },
+    { to: "/explore", icon: <Compass size={22} />, label: "Explore" },
     { to: "/friends", icon: <Users size={22} />, label: "Friends" },
     { to: "/messages", icon: <MessageCircle size={22} />, label: "Messages" },
   ];
@@ -31,16 +38,55 @@ export default function Sidebar() {
             whileHover={{ scale: 1.05, x: 5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <Link
-              to={link.to}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-600 hover:shadow-[0_0_15px_#6C63FF] transition-all duration-300 text-white"
-            >
-              {link.icon}
-              <span className="font-medium">{link.label}</span>
-            </Link>
+            {link.to ? (
+              <Link
+                to={link.to}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-600 hover:shadow-[0_0_15px_#6C63FF] transition-all duration-300 text-white"
+              >
+                {link.icon}
+                <span className="font-medium">{link.label}</span>
+              </Link>
+            ) : (
+              <button
+                onClick={link.action}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-600 hover:shadow-[0_0_15px_#6C63FF] transition-all duration-300 text-white w-full text-left"
+              >
+                {link.icon}
+                <span className="font-medium">{link.label}</span>
+              </button>
+            )}
           </motion.div>
         ))}
       </nav>
+
+      {/* Create Story Modal */}
+      <AnimatePresence>
+        {showCreateStoryModal && (
+          <InstagramStoryCreator
+            user={user}
+            onClose={() => setShowCreateStoryModal(false)}
+            onStoryCreated={() => {
+              setShowCreateStoryModal(false);
+              // Optionally refresh stories or show success message
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Create Post Modal */}
+      <AnimatePresence>
+        {showCreatePostModal && (
+          <CreatePostModal
+            user={user}
+            onClose={() => setShowCreatePostModal(false)}
+            onPostCreated={() => {
+              setShowCreatePostModal(false);
+              // Optionally refresh the feed or show success message
+              window.location.reload(); // Simple refresh for now
+            }}
+          />
+        )}
+      </AnimatePresence>
     </aside>
   );
 }

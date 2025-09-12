@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
 
- const verifyToken = (req, res, next) => {
+ const verifyToken = async (req, res, next) => {
   try {
-    const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.cookies.token;
 
     if (!token) {
       return res.status(401).json({ message: "Access denied. No token provided." });
@@ -12,7 +13,16 @@ import jwt from "jsonwebtoken";
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // verify token
     console.log("Decoded token:", decoded); // Debugging line to check decoded token
-    req.user = decoded; // store user data in request
+     // ✅ Fetch user (only necessary fields to reduce payload)
+    const user = await User.findById(decoded.id).select(
+      "_id username fullName profilePicture"
+    );
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // ✅ Attach user to request for downstream routes
+    req.user = user;
     console.log("User data set in request:", req.user); // Debugging line to check user data
     next();
   } catch (err) {

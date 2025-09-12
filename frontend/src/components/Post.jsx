@@ -1,20 +1,36 @@
-import { useState } from "react";
-import { FaRegHeart, FaRegComment, FaRegPaperPlane } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaRegHeart, FaHeart, FaRegComment, FaComment, FaRegPaperPlane, FaPaperPlane, FaShare } from "react-icons/fa";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import Comments from "./Comments";
+import SharePostModal from "./SharePostModal";
 import { toast } from "react-toastify";
 
 export default function Post({ post, currentUser }) {
-  const [liked, setLiked] = useState(post.likedByUser || false);
-  const [likes, setLikes] = useState(post.likes || 0);
+  // Determine if current user has liked this post
+  const isLikedByCurrentUser = Boolean(post.likedByUser);
+
+  const [liked, setLiked] = useState(isLikedByCurrentUser);
+  const [likes, setLikes] = useState(Number(post.likes) || 0);
   const [loading, setLoading] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const navigate = useNavigate();
+
+  // Update state when post data changes (for async loading)
+  useEffect(() => {
+    // Use the likedByUser field from backend which is already calculated correctly
+    setLiked(Boolean(post.likedByUser));
+    setLikes(
+      typeof post.likes === 'number' ? post.likes : 
+      Array.isArray(post.likes) ? post.likes.length : 0
+    );
+  }, [post.likedByUser, post.likes, post._id]);
 
   const handleLike = async () => {
     if (loading) return;
@@ -115,27 +131,51 @@ export default function Post({ post, currentUser }) {
         <img
           src={post.imageUrl}
           alt="Post"
-          className="w-full max-h-[500px] object-cover"
+          className="w-full max-h-[400px] object-contain bg-gray-800"
           loading="lazy"
         />
       )}
 
       {/* Post Actions */}
-      <div className="flex items-center gap-4 px-4 py-3 text-xl border-b border-gray-800">
-        <FaRegHeart
-          onClick={handleLike}
-          className={`cursor-pointer transition ${
-            liked ? "text-red-500" : "hover:text-red-500"
-          }`}
-        />
-        <span className="text-gray-400 text-sm">{likes} likes</span>
+      <div className="flex items-center gap-6 px-4 py-4 border-b border-gray-800">
+        <div className="flex items-center gap-2">
+          {liked ? (
+            <FaHeart
+              onClick={handleLike}
+              className="cursor-pointer text-red-500 text-2xl hover:scale-110 transition-all duration-200 drop-shadow-[0_0_8px_#ef4444]"
+            />
+          ) : (
+            <FaRegHeart
+              onClick={handleLike}
+              className="cursor-pointer text-gray-300 text-2xl hover:text-red-500 hover:scale-110 transition-all duration-200"
+            />
+          )}
+          <span className="text-gray-400 text-sm font-medium">{likes} {likes === 1 ? 'like' : 'likes'}</span>
+        </div>
 
-        <FaRegComment
-          onClick={() => setShowComments((prev) => !prev)}
-          className="cursor-pointer hover:text-blue-500 transition"
-        />
+        <div className="flex items-center gap-2">
+          {showComments ? (
+            <FaComment
+              onClick={() => setShowComments((prev) => !prev)}
+              className="cursor-pointer text-blue-500 text-2xl hover:scale-110 transition-all duration-200 drop-shadow-[0_0_8px_#3b82f6]"
+            />
+          ) : (
+            <FaRegComment
+              onClick={() => setShowComments((prev) => !prev)}
+              className="cursor-pointer text-gray-300 text-2xl hover:text-blue-500 hover:scale-110 transition-all duration-200"
+            />
+          )}
+        </div>
 
-        <FaRegPaperPlane className="cursor-pointer hover:text-green-500 transition" />
+        <div className="flex items-center gap-2">
+          <FaShare
+            onClick={() => setShowShareModal(true)}
+            className="cursor-pointer text-gray-300 text-2xl hover:text-green-500 hover:scale-110 transition-all duration-200"
+          />
+          {post.shareCount > 0 && (
+            <span className="text-gray-400 text-sm">{post.shareCount}</span>
+          )}
+        </div>
       </div>
 
       {/* Caption */}
@@ -154,9 +194,22 @@ export default function Post({ post, currentUser }) {
       </div>
 
       {/* Comments */}
-      {showComments && (
-        <Comments postId={post._id} postAuthorId={post.author?._id} />
-      )}
+      <AnimatePresence>
+        {showComments && (
+          <Comments postId={post._id} postAuthorId={post.author?._id} />
+        )}
+      </AnimatePresence>
+
+      {/* Share Modal */}
+      <AnimatePresence>
+        {showShareModal && (
+          <SharePostModal
+            post={post}
+            currentUser={currentUser}
+            onClose={() => setShowShareModal(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Delete confirmation modal */}
       {confirmDelete && (

@@ -1,17 +1,21 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import useUserStore from "../store/userStore";
+import { toast } from "react-toastify";
 
 
 export default function Register() {
   const navigate = useNavigate();
+  const { setUser } = useUserStore();
   const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,9 +25,11 @@ export default function Register() {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const res = await api.post("/api/auth/register", {
@@ -32,13 +38,20 @@ export default function Register() {
         password: form.password,
       });
 
-      console.log("Registration successful:", res.data);
-      alert("Account created successfully!");
-      navigate('/home'); // Redirect to home page after successful registration
-      // Optional: redirect user to login page here
+      // Get user profile after successful registration
+      const profileResponse = await api.get("/api/auth/profile");
+      
+      // Store user data in Zustand store
+      setUser(profileResponse.data);
+
+      console.log("Registration successful:", profileResponse.data);
+      toast.success("Account created successfully!");
+      navigate('/home');
     } catch (err) {
       console.error(err.response?.data || err.message);
-      alert(err.response?.data?.message || "Registration failed");
+      toast.error(err.response?.data?.message || "Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -151,6 +151,17 @@ export const addComment = async (req, res) => {
     await post.save();
     await post.populate("comments.author", "username profilePicture");
 
+    // Format comments with full profile picture URLs
+    const formattedComments = post.comments.map(comment => ({
+      ...comment.toObject(),
+      author: {
+        ...comment.author.toObject(),
+        profilePicture: comment.author?.profilePicture
+          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          : null,
+      }
+    }));
+
     // 🔔 notify post owner
     if (post.author.toString() !== req.user.id) {
       await Notification.create({
@@ -161,7 +172,7 @@ export const addComment = async (req, res) => {
       });
     }
 
-    res.status(201).json(post.comments);
+    res.status(201).json(formattedComments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -176,9 +187,20 @@ export const getComments = async (req, res) => {
     );
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    console.log("👉 Comments fetched:", JSON.stringify(post.comments, null, 2));
+    // Format comments with full profile picture URLs
+    const formattedComments = post.comments.map(comment => ({
+      ...comment.toObject(),
+      author: {
+        ...comment.author.toObject(),
+        profilePicture: comment.author?.profilePicture
+          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          : null,
+      }
+    }));
 
-    res.json(post.comments); // return only comments
+    console.log("👉 Comments fetched:", JSON.stringify(formattedComments, null, 2));
+
+    res.json(formattedComments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -203,7 +225,18 @@ export const editComment = async (req, res) => {
     await post.save();
     await post.populate("comments.author", "username profilePicture");
 
-    res.json(post.comments);
+    // Format comments with full profile picture URLs
+    const formattedComments = post.comments.map(comment => ({
+      ...comment.toObject(),
+      author: {
+        ...comment.author.toObject(),
+        profilePicture: comment.author?.profilePicture
+          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          : null,
+      }
+    }));
+
+    res.json(formattedComments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -231,7 +264,18 @@ export const deleteComment = async (req, res) => {
     await post.save();
     await post.populate("comments.author", "username profilePicture");
 
-    res.json({ message: "Comment deleted", comments: post.comments });
+    // Format comments with full profile picture URLs
+    const formattedComments = post.comments.map(comment => ({
+      ...comment.toObject(),
+      author: {
+        ...comment.author.toObject(),
+        profilePicture: comment.author?.profilePicture
+          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          : null,
+      }
+    }));
+
+    res.json({ message: "Comment deleted", comments: formattedComments });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -245,7 +289,18 @@ export const getPostById = async (req, res) => {
       "username profilePicture"
     );
     if (!post) return res.status(404).json({ message: "Post not found" });
-    res.json(post);
+    
+    // Add like status for current user (if authenticated)
+    let postWithLikeStatus = post.toObject();
+    if (req.user) {
+      postWithLikeStatus.likedByUser = post.likes.includes(req.user._id);
+      postWithLikeStatus.likes = post.likes.length; // Convert array to count
+    } else {
+      postWithLikeStatus.likedByUser = false;
+      postWithLikeStatus.likes = post.likes.length;
+    }
+    
+    res.json(postWithLikeStatus);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -356,3 +411,236 @@ export async function searchPosts(req, res) {
     res.status(500).json({ message: "Error searching posts", error });
   }
 }
+
+// Get trending posts (most likes + comments)
+export const getTrendingPosts = async (req, res) => {
+  try {
+    const { limit = 20, timeframe = 'week' } = req.query;
+    
+    // Calculate date threshold based on timeframe
+    const now = new Date();
+    let dateThreshold;
+    
+    switch (timeframe) {
+      case 'day':
+        dateThreshold = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case 'week':
+        dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        dateThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+
+    const posts = await Post.aggregate([
+      // Filter posts within timeframe
+      {
+        $match: {
+          createdAt: { $gte: dateThreshold }
+        }
+      },
+      // Add calculated fields for trending score
+      {
+        $addFields: {
+          likesCount: { $size: "$likes" },
+          commentsCount: { $size: "$comments" },
+          // Trending score: likes * 2 + comments * 3 (comments weighted more)
+          trendingScore: {
+            $add: [
+              { $multiply: [{ $size: "$likes" }, 2] },
+              { $multiply: [{ $size: "$comments" }, 3] }
+            ]
+          },
+          // Recency boost (newer posts get slight advantage)
+          recencyBoost: {
+            $divide: [
+              { $subtract: ["$createdAt", dateThreshold] },
+              1000000 // Convert to smaller number
+            ]
+          }
+        }
+      },
+      // Final trending score with recency
+      {
+        $addFields: {
+          finalScore: {
+            $add: ["$trendingScore", { $multiply: ["$recencyBoost", 0.1] }]
+          }
+        }
+      },
+      // Sort by trending score
+      { $sort: { finalScore: -1 } },
+      // Limit results
+      { $limit: parseInt(limit) },
+      // Populate author info
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author"
+        }
+      },
+      { $unwind: "$author" },
+      // Project only needed fields
+      {
+        $project: {
+          title: 1,
+          imageUrl: 1,
+          createdAt: 1,
+          likes: 1,
+          comments: 1,
+          likesCount: 1,
+          commentsCount: 1,
+          trendingScore: 1,
+          finalScore: 1,
+          "author._id": 1,
+          "author.username": 1,
+          "author.profilePicture": 1
+        }
+      }
+    ]);
+
+    // Format the response with full URLs
+    const formattedPosts = posts.map(post => ({
+      ...post,
+      imageUrl: post.imageUrl
+        ? `${req.protocol}://${req.get("host")}${post.imageUrl.replace(/^https?:\/\/[^/]+/, "")}`
+        : null,
+      author: {
+        ...post.author,
+        profilePicture: post.author?.profilePicture
+          ? `${req.protocol}://${req.get("host")}${post.author.profilePicture}`
+          : null,
+      },
+      likes: post.likes.length,
+      likedByUser: req.user
+        ? post.likes.some((id) => id.toString() === req.user.id)
+        : false,
+    }));
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error("Error fetching trending posts:", error);
+    res.status(500).json({ message: "Error fetching trending posts", error: error.message });
+  }
+};
+
+// Share post to friends
+export const sharePost = async (req, res) => {
+  try {
+    const { postId, recipients, message } = req.body;
+    const senderId = req.user.id;
+
+    if (!postId || !recipients || recipients.length === 0) {
+      return res.status(400).json({ message: "Post ID and recipients are required" });
+    }
+
+    // Import models needed for messaging
+    const Message = (await import("../models/messageModel.js")).default;
+    const Chat = (await import("../models/chatModel.js")).default;
+    const User = (await import("../models/userModel.js")).default;
+
+    // Verify post exists
+    const post = await Post.findById(postId).populate("author", "username fullName");
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // Create actual messages for each recipient
+    const sharePromises = recipients.map(async (recipientId) => {
+      try {
+        // Find or create chat between sender and recipient
+        let chat = await Chat.findOne({
+          participants: { $all: [senderId, recipientId] },
+          isGroup: false
+        });
+
+        if (!chat) {
+          // Create new chat
+          chat = await Chat.create({
+            participants: [senderId, recipientId],
+            isGroup: false
+          });
+        }
+
+        // Create the shared post message
+        const sharedMessage = await Message.create({
+          sender: senderId,
+          chat: chat._id,
+          content: message || `Shared a post`,
+          messageType: 'shared_post',
+          sharedPost: postId
+        });
+
+        // Populate the message with full details
+        const fullMessage = await Message.findById(sharedMessage._id)
+          .populate("sender", "username fullName profilePicture")
+          .populate({
+            path: "chat",
+            populate: {
+              path: "participants",
+              select: "username fullName profilePicture"
+            }
+          })
+          .populate({
+            path: "sharedPost",
+            populate: {
+              path: "author",
+              select: "username fullName profilePicture"
+            }
+          });
+
+        // Update chat's latest message
+        await Chat.findByIdAndUpdate(chat._id, {
+          latestMessage: fullMessage._id,
+          updatedAt: new Date()
+        });
+
+        console.log(`📤 Post shared to ${recipientId} via message`);
+        
+        // Emit message via socket to recipients in real-time
+        const io = req.app.get('io'); // Get io instance from app
+        if (io && fullMessage.chat?.participants) {
+          fullMessage.chat.participants.forEach((participant) => {
+            if (participant._id.toString() !== senderId.toString()) {
+              console.log("📨 Emitting shared post message to user:", participant._id);
+              io.to(participant._id.toString()).emit("message_received", fullMessage);
+              io.to(fullMessage.chat._id.toString()).emit("message_received", fullMessage);
+            }
+          });
+        }
+        
+        return fullMessage;
+      } catch (error) {
+        console.error(`Error sharing to user ${recipientId}:`, error);
+        return null;
+      }
+    });
+
+    const shareResults = await Promise.all(sharePromises);
+    const successfulShares = shareResults.filter(result => result !== null);
+
+    // Update post share count
+    await Post.findByIdAndUpdate(postId, {
+      $inc: { shareCount: successfulShares.length }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Post shared with ${successfulShares.length} user${successfulShares.length !== 1 ? 's' : ''}`,
+      sharedCount: successfulShares.length,
+      sharedMessages: successfulShares
+    });
+  } catch (error) {
+    console.error("Error sharing post:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error sharing post", 
+      error: error.message 
+    });
+  }
+};
