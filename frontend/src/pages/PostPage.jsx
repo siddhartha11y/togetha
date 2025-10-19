@@ -19,8 +19,8 @@ export default function PostPage() {
       try {
         // Fetch current user and post data in parallel
         const [userRes, postRes] = await Promise.all([
-          api.get("/api/auth/profile", { withCredentials: true }),
-          api.get(`/api/posts/${id}`, { withCredentials: true })
+          api.get("/auth/profile", { withCredentials: true }),
+          api.get(`/posts/${id}`, { withCredentials: true })
         ]);
         
         setCurrentUser(userRes.data);

@@ -11,11 +11,11 @@ export default function Feed() {
     const fetchData = async () => {
       try {
         // 1. get current user from backend (cookie-based auth)
-        const userRes = await api.get("/api/auth/profile", { withCredentials: true });
+        const userRes = await api.get("/auth/profile", { withCredentials: true });
         setCurrentUser(userRes.data);
 
         // 2. fetch posts
-        const postsRes = await api.get("/api/posts", { withCredentials: true });
+        const postsRes = await api.get("/posts", { withCredentials: true });
         setPosts(postsRes.data);
 
         console.log("📊 Feed Debug - User:", userRes.data);
@@ -40,7 +40,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="w-full max-w-lg space-y-8 pt-7">
+    <div className="w-full max-w-2xl mx-auto space-y-6">
       {posts.map((post) => (
         <Post key={post._id} post={post} currentUser={currentUser} />
       ))}

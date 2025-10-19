@@ -8,6 +8,13 @@ const router = express.Router();
 router.post("/", verifyToken, upload.single("image"), createPost);
 router.get("/", verifyToken, getAllPosts);
 
+// Search and trending routes MUST come before /:id routes
+router.get("/search", verifyToken, searchPosts);
+router.get("/trending/posts", verifyToken, getTrendingPosts);
+
+// Share post route
+router.post("/share", verifyToken, sharePost);
+
 // Like / Unlike a post
 router.post("/:id/like", verifyToken, postLikes );
 router.post("/:id/comments", verifyToken, addComment);
@@ -23,13 +30,5 @@ router.put("/:id", verifyToken, upload.single("image"), updatePost);
 
 // Delete
 router.delete("/:id", verifyToken, deletePost);
-
-router.get("/search", verifyToken, searchPosts);
-
-// Trending posts route
-router.get("/trending/posts", verifyToken, getTrendingPosts);
-
-// Share post route
-router.post("/share", verifyToken, sharePost);
 
 export default router;

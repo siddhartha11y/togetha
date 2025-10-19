@@ -27,7 +27,7 @@ export default function MessagesPage() {
       try {
         loadUserFromCookie();
         // Also try to fetch fresh user data from API
-        const response = await api.get("/api/auth/profile");
+        const response = await api.get("/auth/profile");
         if (response.data) {
           // User is authenticated, continue
         }
@@ -58,7 +58,7 @@ export default function MessagesPage() {
     if (userId && user) {
       // Create or get existing chat with this user
       api
-        .post(`/api/chats/${userId}`)
+        .post(`/chats/${userId}`)
         .then((res) => {
           setSelectedChat(res.data);
           // Update chats list to include this new/existing chat
@@ -88,7 +88,7 @@ export default function MessagesPage() {
     const fetchChats = async () => {
       try {
         setIsLoading(true);
-        const { data } = await api.get("/api/chats");
+        const { data } = await api.get("/chats");
         console.log("Fetched chats:", data);
         setChats(data);
       } catch (err) {
@@ -162,7 +162,7 @@ export default function MessagesPage() {
     
     setDeletingChat(chatId);
     try {
-      await api.delete(`/api/chats/${chatId}`, { withCredentials: true });
+      await api.delete(`/chats/${chatId}`, { withCredentials: true });
       
       // Remove chat from state
       setChats(prevChats => prevChats.filter(chat => chat._id !== chatId));

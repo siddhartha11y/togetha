@@ -47,6 +47,14 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
   const [backgroundColor, setBackgroundColor] = useState("#000000");
   const [backgroundGradient, setBackgroundGradient] = useState(null);
   
+  // Zoom states
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [imageRotation, setImageRotation] = useState(0);
+  
+  // Emoji picker for text
+  const [showTextEmojiPicker, setShowTextEmojiPicker] = useState(false);
+  
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
@@ -88,20 +96,137 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
     }
   ];
 
-  // Sample stickers
+  // Comprehensive sticker collection
   const sampleStickers = [
+    // Emotions & Faces
     { id: 1, emoji: "❤️", category: "emotions" },
     { id: 2, emoji: "😍", category: "emotions" },
-    { id: 3, emoji: "🔥", category: "emotions" },
-    { id: 4, emoji: "✨", category: "effects" },
-    { id: 5, emoji: "🌟", category: "effects" },
-    { id: 6, emoji: "💫", category: "effects" },
-    { id: 7, emoji: "🎵", category: "music" },
-    { id: 8, emoji: "🎶", category: "music" },
-    { id: 9, emoji: "🎤", category: "music" },
-    { id: 10, emoji: "📍", category: "location" },
-    { id: 11, emoji: "🏠", category: "location" },
-    { id: 12, emoji: "🌍", category: "location" }
+    { id: 3, emoji: "🥰", category: "emotions" },
+    { id: 4, emoji: "😘", category: "emotions" },
+    { id: 5, emoji: "😊", category: "emotions" },
+    { id: 6, emoji: "😂", category: "emotions" },
+    { id: 7, emoji: "🤣", category: "emotions" },
+    { id: 8, emoji: "😭", category: "emotions" },
+    { id: 9, emoji: "🥺", category: "emotions" },
+    { id: 10, emoji: "😎", category: "emotions" },
+    { id: 11, emoji: "🤩", category: "emotions" },
+    { id: 12, emoji: "🥳", category: "emotions" },
+    { id: 13, emoji: "😴", category: "emotions" },
+    { id: 14, emoji: "🤔", category: "emotions" },
+    { id: 15, emoji: "😏", category: "emotions" },
+    
+    // Hearts & Love
+    { id: 16, emoji: "💕", category: "hearts" },
+    { id: 17, emoji: "💖", category: "hearts" },
+    { id: 18, emoji: "💗", category: "hearts" },
+    { id: 19, emoji: "💓", category: "hearts" },
+    { id: 20, emoji: "💝", category: "hearts" },
+    { id: 21, emoji: "💘", category: "hearts" },
+    { id: 22, emoji: "💞", category: "hearts" },
+    { id: 23, emoji: "💟", category: "hearts" },
+    { id: 24, emoji: "🖤", category: "hearts" },
+    { id: 25, emoji: "🤍", category: "hearts" },
+    { id: 26, emoji: "🤎", category: "hearts" },
+    { id: 27, emoji: "💜", category: "hearts" },
+    { id: 28, emoji: "💙", category: "hearts" },
+    { id: 29, emoji: "💚", category: "hearts" },
+    { id: 30, emoji: "💛", category: "hearts" },
+    
+    // Effects & Sparkles
+    { id: 31, emoji: "✨", category: "effects" },
+    { id: 32, emoji: "🌟", category: "effects" },
+    { id: 33, emoji: "💫", category: "effects" },
+    { id: 34, emoji: "⭐", category: "effects" },
+    { id: 35, emoji: "🔥", category: "effects" },
+    { id: 36, emoji: "💥", category: "effects" },
+    { id: 37, emoji: "⚡", category: "effects" },
+    { id: 38, emoji: "🌈", category: "effects" },
+    { id: 39, emoji: "☀️", category: "effects" },
+    { id: 40, emoji: "🌙", category: "effects" },
+    { id: 41, emoji: "⭐", category: "effects" },
+    { id: 42, emoji: "🎆", category: "effects" },
+    { id: 43, emoji: "🎇", category: "effects" },
+    
+    // Music & Entertainment
+    { id: 44, emoji: "🎵", category: "music" },
+    { id: 45, emoji: "🎶", category: "music" },
+    { id: 46, emoji: "🎤", category: "music" },
+    { id: 47, emoji: "🎧", category: "music" },
+    { id: 48, emoji: "🎸", category: "music" },
+    { id: 49, emoji: "🥳", category: "music" },
+    { id: 50, emoji: "🎉", category: "music" },
+    { id: 51, emoji: "🎊", category: "music" },
+    { id: 52, emoji: "🎈", category: "music" },
+    
+    // Food & Drinks
+    { id: 53, emoji: "🍕", category: "food" },
+    { id: 54, emoji: "🍔", category: "food" },
+    { id: 55, emoji: "🍟", category: "food" },
+    { id: 56, emoji: "🌮", category: "food" },
+    { id: 57, emoji: "🍦", category: "food" },
+    { id: 58, emoji: "🍰", category: "food" },
+    { id: 59, emoji: "🧁", category: "food" },
+    { id: 60, emoji: "🍪", category: "food" },
+    { id: 61, emoji: "☕", category: "food" },
+    { id: 62, emoji: "🥤", category: "food" },
+    { id: 63, emoji: "🍺", category: "food" },
+    { id: 64, emoji: "🍷", category: "food" },
+    
+    // Animals
+    { id: 65, emoji: "🐶", category: "animals" },
+    { id: 66, emoji: "🐱", category: "animals" },
+    { id: 67, emoji: "🦄", category: "animals" },
+    { id: 68, emoji: "🐼", category: "animals" },
+    { id: 69, emoji: "🐨", category: "animals" },
+    { id: 70, emoji: "🦊", category: "animals" },
+    { id: 71, emoji: "🐸", category: "animals" },
+    { id: 72, emoji: "🦋", category: "animals" },
+    { id: 73, emoji: "🐝", category: "animals" },
+    
+    // Activities & Sports
+    { id: 74, emoji: "⚽", category: "sports" },
+    { id: 75, emoji: "🏀", category: "sports" },
+    { id: 76, emoji: "🎾", category: "sports" },
+    { id: 77, emoji: "🏈", category: "sports" },
+    { id: 78, emoji: "🎯", category: "sports" },
+    { id: 79, emoji: "🎮", category: "sports" },
+    { id: 80, emoji: "🎲", category: "sports" },
+    
+    // Travel & Places
+    { id: 81, emoji: "📍", category: "location" },
+    { id: 82, emoji: "🏠", category: "location" },
+    { id: 83, emoji: "🌍", category: "location" },
+    { id: 84, emoji: "✈️", category: "location" },
+    { id: 85, emoji: "🚗", category: "location" },
+    { id: 86, emoji: "🏖️", category: "location" },
+    { id: 87, emoji: "🏔️", category: "location" },
+    { id: 88, emoji: "🌴", category: "location" },
+    { id: 89, emoji: "🗽", category: "location" },
+    { id: 90, emoji: "🎡", category: "location" }
+  ];
+
+  // Text emojis - comprehensive collection for text input
+  const textEmojis = [
+    // Faces & Emotions
+    "😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃", "😉", "😊", "😇", "🥰", "😍", "🤩", "😘", "😗", "☺️", "😚", "😙", "🥲", "😋", "😛", "😜", "🤪", "😝", "🤑", "🤗", "🤭", "🤫", "🤔", "🤐", "🤨", "😐", "😑", "😶", "😏", "😒", "🙄", "😬", "🤥", "😔", "😪", "🤤", "😴", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "🥵", "🥶", "🥴", "😵", "🤯", "🤠", "🥳", "🥸", "😎", "🤓", "🧐",
+    
+    // Hearts & Love
+    "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟",
+    
+    // Hand Gestures
+    "👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤌", "🤏", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "🖕", "👇", "☝️", "👍", "👎", "👊", "✊", "🤛", "🤜", "👏", "🙌", "👐", "🤲", "🤝", "🙏",
+    
+    // Objects & Symbols
+    "💯", "💢", "💥", "💫", "💦", "💨", "🕳️", "💣", "💬", "👁️‍🗨️", "🗨️", "🗯️", "💭", "💤", "👋", "✨", "🌟", "💫", "⭐", "🌈", "☀️", "🌙", "⚡", "🔥", "💥",
+    
+    // Food & Drinks
+    "🍎", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶️", "🫑", "🌽", "🥕", "🫒", "🧄", "🧅", "🥔", "🍠", "🥐", "🍞", "🥖", "🥨", "🧀", "🥚", "🍳", "🧈", "🥞", "🧇", "🥓", "🥩", "🍗", "🍖", "🦴", "🌭", "🍔", "🍟", "🍕", "🥪", "🥙", "🧆", "🌮", "🌯", "🫔", "🥗", "🥘", "🫕", "🥫", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🥧", "🧁", "🍰", "🎂", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜", "🍯", "🥛", "🍼", "☕", "🫖", "🍵", "🧃", "🥤", "🧋", "🍶", "🍺", "🍻", "🥂", "🍷", "🥃", "🍸", "🍹", "🧉", "🍾",
+    
+    // Animals & Nature
+    "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐽", "🐸", "🐵", "🙈", "🙉", "🙊", "🐒", "🐔", "🐧", "🐦", "🐤", "🐣", "🐥", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🪱", "🐛", "🦋", "🐌", "🐞", "🐜", "🪰", "🪲", "🪳", "🦟", "🦗", "🕷️", "🕸️", "🦂", "🐢", "🐍", "🦎", "🦖", "🦕", "🐙", "🦑", "🦐", "🦞", "🦀", "🐡", "🐠", "🐟", "🐬", "🐳", "🐋", "🦈", "🐊", "🐅", "🐆", "🦓", "🦍", "🦧", "🐘", "🦛", "🦏", "🐪", "🐫", "🦒", "🦘", "🐃", "🐂", "🐄", "🐎", "🐖", "🐏", "🐑", "🦙", "🐐", "🦌", "🐕", "🐩", "🦮", "🐕‍🦺", "🐈", "🐈‍⬛", "🪶", "🐓", "🦃", "🦚", "🦜", "🦢", "🦩", "🕊️", "🐇", "🦝", "🦨", "🦡", "🦦", "🦥", "🐁", "🐀", "🐿️", "🦔",
+    
+    // Activities & Sports
+    "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓", "🏸", "🏒", "🏑", "🥍", "🏏", "🪃", "🥅", "⛳", "🪁", "🏹", "🎣", "🤿", "🥊", "🥋", "🎽", "🛹", "🛷", "⛸️", "🥌", "🎿", "⛷️", "🏂", "🪂", "🏋️‍♀️", "🏋️", "🏋️‍♂️", "🤼‍♀️", "🤼", "🤼‍♂️", "🤸‍♀️", "🤸", "🤸‍♂️", "⛹️‍♀️", "⛹️", "⛹️‍♂️", "🤺", "🤾‍♀️", "🤾", "🤾‍♂️", "🏌️‍♀️", "🏌️", "🏌️‍♂️", "🏇", "🧘‍♀️", "🧘", "🧘‍♂️", "🏄‍♀️", "🏄", "🏄‍♂️", "🏊‍♀️", "🏊", "🏊‍♂️", "🤽‍♀️", "🤽", "🤽‍♂️", "🚣‍♀️", "🚣", "🚣‍♂️", "🧗‍♀️", "🧗", "🧗‍♂️", "🚵‍♀️", "🚵", "🚵‍♂️", "🚴‍♀️", "🚴", "🚴‍♂️", "🏆", "🥇", "🥈", "🥉", "🏅", "🎖️", "🏵️", "🎗️"
   ];
 
   const backgroundGradients = [
@@ -166,6 +291,41 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
   const deleteTextElement = (id) => {
     setTextElements(prev => prev.filter(text => text.id !== id));
     setActiveTextId(null);
+  };
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.1, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
+  };
+
+  const resetZoom = () => {
+    setZoomLevel(1);
+    setImagePosition({ x: 0, y: 0 });
+    setImageRotation(0);
+  };
+
+  const rotateImage = () => {
+    setImageRotation(prev => prev + 90);
+  };
+
+  const rotateElement = (elementType, id, direction = 1) => {
+    const rotationAmount = 15 * direction; // 15 degrees per click
+    
+    if (elementType === 'text') {
+      updateTextElement(id, { 
+        rotation: (textElements.find(t => t.id === id)?.rotation || 0) + rotationAmount 
+      });
+    } else if (elementType === 'sticker') {
+      setStickers(prev => prev.map(s => 
+        s.id === id ? { 
+          ...s, 
+          rotation: (s.rotation || 0) + rotationAmount 
+        } : s
+      ));
+    }
   };
 
   const addSticker = (sticker) => {
@@ -248,7 +408,7 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
       
       formData.append("storyData", JSON.stringify(storyData));
 
-      await api.post("/api/stories", formData, {
+      await api.post("/stories", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -300,18 +460,80 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
         {/* Story Canvas */}
         <div className="flex-1 flex items-center justify-center p-4">
           <div 
-            className="relative w-full max-w-sm aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-md aspect-[9/14] rounded-2xl overflow-hidden shadow-2xl"
             style={{
-              background: backgroundGradient || backgroundColor
+              background: backgroundGradient || backgroundColor,
+              width: '400px',
+              height: '620px'
             }}
           >
             {/* Background Media */}
             {previewUrl && (
-              <img
-                src={previewUrl}
-                alt="Story background"
-                className="w-full h-full object-cover"
-              />
+              <>
+                <img
+                  src={previewUrl}
+                  alt="Story background"
+                  className="w-full h-full object-cover transition-transform duration-200 cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `scale(${zoomLevel}) translate(${imagePosition.x}px, ${imagePosition.y}px) rotate(${imageRotation}deg)`
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const startX = e.clientX - imagePosition.x;
+                    const startY = e.clientY - imagePosition.y;
+                    
+                    const handleMouseMove = (e) => {
+                      const newX = e.clientX - startX;
+                      const newY = e.clientY - startY;
+                      setImagePosition({ x: newX, y: newY });
+                    };
+                    
+                    const handleMouseUp = () => {
+                      document.removeEventListener('mousemove', handleMouseMove);
+                      document.removeEventListener('mouseup', handleMouseUp);
+                    };
+                    
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', handleMouseUp);
+                  }}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    const newZoom = Math.max(0.5, Math.min(zoomLevel + delta, 3));
+                    setZoomLevel(newZoom);
+                  }}
+                />
+                
+                {/* Zoom Controls - Only show when not in sticker panel */}
+                {!showStickerPanel && (
+                  <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+                    <button
+                      onClick={handleZoomIn}
+                      className="w-8 h-8 bg-black bg-opacity-70 text-white rounded-full flex items-center justify-center hover:bg-opacity-90 transition-all"
+                    >
+                      <ZoomIn size={16} />
+                    </button>
+                    <button
+                      onClick={handleZoomOut}
+                      className="w-8 h-8 bg-black bg-opacity-70 text-white rounded-full flex items-center justify-center hover:bg-opacity-90 transition-all"
+                    >
+                      <ZoomOut size={16} />
+                    </button>
+                    <button
+                      onClick={rotateImage}
+                      className="w-8 h-8 bg-black bg-opacity-70 text-white rounded-full flex items-center justify-center hover:bg-opacity-90 transition-all"
+                    >
+                      ↻
+                    </button>
+                    <button
+                      onClick={resetZoom}
+                      className="w-8 h-8 bg-black bg-opacity-70 text-white rounded-full flex items-center justify-center hover:bg-opacity-90 transition-all"
+                    >
+                      <RotateCcw size={16} />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
             
             {/* Text Elements */}
@@ -329,18 +551,78 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
                   ...textBackgrounds.find(b => b.id === text.background)?.style
                 }}
                 onClick={() => setActiveTextId(text.id)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startX = e.clientX - text.x;
+                  const startY = e.clientY - text.y;
+                  
+                  const handleMouseMove = (e) => {
+                    const newX = Math.max(0, Math.min(e.clientX - startX, 300));
+                    const newY = Math.max(0, Math.min(e.clientY - startY, 500));
+                    updateTextElement(text.id, { x: newX, y: newY });
+                  };
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }}
               >
                 {text.text}
                 {activeTextId === text.id && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteTextElement(text.id);
-                    }}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs"
-                  >
-                    ×
-                  </button>
+                  <>
+                    {/* Delete button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTextElement(text.id);
+                      }}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs"
+                    >
+                      ×
+                    </button>
+                    
+                    {/* Resize handle */}
+                    <div
+                      className="absolute -bottom-2 -right-2 w-6 h-6 bg-blue-500 rounded-full cursor-nw-resize flex items-center justify-center text-white text-xs"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const startSize = text.size;
+                        const startX = e.clientX;
+                        
+                        const handleMouseMove = (e) => {
+                          const deltaX = e.clientX - startX;
+                          const newSize = Math.max(12, Math.min(startSize + deltaX / 2, 72));
+                          updateTextElement(text.id, { size: newSize });
+                        };
+                        
+                        const handleMouseUp = () => {
+                          document.removeEventListener('mousemove', handleMouseMove);
+                          document.removeEventListener('mouseup', handleMouseUp);
+                        };
+                        
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                      }}
+                    >
+                      ⤡
+                    </div>
+                    
+                    {/* Rotation handle */}
+                    <div
+                      className="absolute -top-2 -left-2 w-6 h-6 bg-green-500 rounded-full cursor-pointer flex items-center justify-center text-white text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        rotateElement('text', text.id);
+                      }}
+                    >
+                      ↻
+                    </div>
+                  </>
                 )}
               </div>
             ))}
@@ -356,8 +638,82 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
                   fontSize: `${sticker.size}px`,
                   transform: `rotate(${sticker.rotation}deg)`
                 }}
+                onClick={() => setActiveTextId(sticker.id)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startX = e.clientX - sticker.x;
+                  const startY = e.clientY - sticker.y;
+                  
+                  const handleMouseMove = (e) => {
+                    const newX = Math.max(0, Math.min(e.clientX - startX, 300));
+                    const newY = Math.max(0, Math.min(e.clientY - startY, 500));
+                    setStickers(prev => prev.map(s => 
+                      s.id === sticker.id ? { ...s, x: newX, y: newY } : s
+                    ));
+                  };
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }}
               >
                 {sticker.emoji}
+                {activeTextId === sticker.id && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setStickers(prev => prev.filter(s => s.id !== sticker.id));
+                        setActiveTextId(null);
+                      }}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs"
+                    >
+                      ×
+                    </button>
+                    <div
+                      className="absolute -bottom-2 -right-2 w-6 h-6 bg-blue-500 rounded-full cursor-nw-resize flex items-center justify-center text-white text-xs"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const startSize = sticker.size;
+                        const startX = e.clientX;
+                        
+                        const handleMouseMove = (e) => {
+                          const deltaX = e.clientX - startX;
+                          const newSize = Math.max(20, Math.min(startSize + deltaX / 2, 100));
+                          setStickers(prev => prev.map(s => 
+                            s.id === sticker.id ? { ...s, size: newSize } : s
+                          ));
+                        };
+                        
+                        const handleMouseUp = () => {
+                          document.removeEventListener('mousemove', handleMouseMove);
+                          document.removeEventListener('mouseup', handleMouseUp);
+                        };
+                        
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                      }}
+                    >
+                      ⤡
+                    </div>
+                    
+                    {/* Rotation handle */}
+                    <div
+                      className="absolute -top-2 -left-2 w-6 h-6 bg-green-500 rounded-full cursor-pointer flex items-center justify-center text-white text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        rotateElement('sticker', sticker.id);
+                      }}
+                    >
+                      ↻
+                    </div>
+                  </>
+                )}
               </div>
             ))}
             
@@ -452,14 +808,42 @@ export default function InstagramStoryCreator({ user, onClose, onStoryCreated })
                 Add Text
               </h3>
               <div className="space-y-3">
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Type your text..."
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  onKeyPress={(e) => e.key === 'Enter' && addTextElement()}
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    placeholder="Type your text..."
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    onKeyPress={(e) => e.key === 'Enter' && addTextElement()}
+                  />
+                  <button
+                    onClick={() => setShowTextEmojiPicker(!showTextEmojiPicker)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-yellow-400 hover:text-yellow-300 text-xl"
+                  >
+                    😀
+                  </button>
+                </div>
+                
+                {/* Text Emoji Picker */}
+                {showTextEmojiPicker && (
+                  <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 max-h-40 overflow-y-auto">
+                    <div className="grid grid-cols-8 gap-1">
+                      {textEmojis.map((emoji, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setTextInput(prev => prev + emoji);
+                            setShowTextEmojiPicker(false);
+                          }}
+                          className="p-1 hover:bg-gray-700 rounded text-lg"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-2 gap-2">
                   <button

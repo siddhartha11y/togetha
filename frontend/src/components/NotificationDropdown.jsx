@@ -16,7 +16,7 @@ export default function NotificationsDropdown() {
   // Fetch notifications
   const fetchNotifications = async () => {
     try {
-      const res = await api.get("/api/notifications", {
+      const res = await api.get("/notifications", {
         withCredentials: true,
       });
       

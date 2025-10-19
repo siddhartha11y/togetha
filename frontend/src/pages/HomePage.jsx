@@ -12,7 +12,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userRes = await api.get("/api/auth/profile", { withCredentials: true });
+        const userRes = await api.get("/auth/profile", { withCredentials: true });
         setCurrentUser(userRes.data);
       } catch (err) {
         console.error("Error fetching user:", err);
@@ -38,9 +38,13 @@ export default function HomePage() {
       <div className="flex">
         <Sidebar user={currentUser} />
         <div className="ml-[256px] pt-[64px] flex-grow">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto px-4">
             {/* Stories Carousel */}
-            {currentUser && <StoriesCarousel user={currentUser} />}
+            {currentUser && (
+              <div className="mb-6">
+                <StoriesCarousel user={currentUser} />
+              </div>
+            )}
             
             {/* Feed */}
             <Feed />

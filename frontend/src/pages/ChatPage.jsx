@@ -23,7 +23,7 @@ export default function ChatPage() {
       try {
         loadUserFromCookie();
         // Also try to fetch fresh user data from API
-        const response = await api.get("/api/auth/profile");
+        const response = await api.get("/auth/profile");
         if (response.data) {
           // User is authenticated, continue
         }
@@ -52,7 +52,7 @@ export default function ChatPage() {
     const fetchChat = async () => {
       try {
         setIsLoading(true);
-        const { data } = await api.get(`/api/chats/${chatId}`);
+        const { data } = await api.get(`/chats/${chatId}`);
         setChat(data);
       } catch (err) {
         console.error("Error fetching chat:", err);

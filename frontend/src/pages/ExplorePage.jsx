@@ -16,7 +16,7 @@ export default function ExplorePage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/api/auth/profile", { withCredentials: true });
+        const res = await api.get("/auth/profile", { withCredentials: true });
         setCurrentUser(res.data);
       } catch (err) {
         console.error("Error fetching user:", err);
@@ -30,7 +30,7 @@ export default function ExplorePage() {
     const fetchTrendingPosts = async () => {
       setLoading(true);
       try {
-        const res = await api.get(`/api/posts/trending/posts?timeframe=${timeframe}&limit=20`, {
+        const res = await api.get(`/posts/trending/posts?timeframe=${timeframe}&limit=20`, {
           withCredentials: true,
         });
         setTrendingPosts(res.data);

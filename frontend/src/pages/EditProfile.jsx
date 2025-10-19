@@ -17,7 +17,7 @@ export default function EditProfile() {
 
   useEffect(() => {
     // Fetch current profile details
-    api.get("/api/auth/profile").then((res) => {
+    api.get("/auth/profile").then((res) => {
       setForm({
         username: res.data.username || "",
         fullName: res.data.fullName || "",
@@ -46,7 +46,7 @@ export default function EditProfile() {
     });
 
     try {
-      await api.put("/api/auth/update-profile", formData, {
+      await api.put("/auth/update-profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       navigate("/profile", { state: { showSuccessToast: true } });

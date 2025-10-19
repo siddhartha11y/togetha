@@ -39,8 +39,8 @@ export default function SharePostModal({ post, onClose, currentUser }) {
         
         // Fetch following and followers in parallel
         const [followingRes, followersRes] = await Promise.all([
-          api.get('/api/auth/following', { withCredentials: true }).catch(() => ({ data: [] })),
-          api.get('/api/auth/followers', { withCredentials: true }).catch(() => ({ data: [] }))
+          api.get('/auth/following', { withCredentials: true }).catch(() => ({ data: [] })),
+          api.get('/auth/followers', { withCredentials: true }).catch(() => ({ data: [] }))
         ]);
         
         const followingList = followingRes.data || [];
@@ -177,7 +177,7 @@ export default function SharePostModal({ post, onClose, currentUser }) {
         message: shareMessage.trim() || `Check out this post from @${post.author.username}!`
       };
 
-      await api.post('/api/posts/share', shareData, {
+      await api.post('/posts/share', shareData, {
         withCredentials: true
       });
 

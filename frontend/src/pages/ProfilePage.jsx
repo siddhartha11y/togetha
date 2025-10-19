@@ -31,7 +31,7 @@ export default function Profile() {
     const fetchData = async () => {
       try {
         // 1. Always fetch logged-in user
-        const profileRes = await api.get("/api/auth/profile");
+        const profileRes = await api.get("/auth/profile");
         setCurrentUser(profileRes.data);
 
         let userRes;
@@ -41,7 +41,7 @@ export default function Profile() {
           userRes = profileRes; // same as logged in user
         } else {
           // 3. Visiting someone else's profile
-          userRes = await api.get(`/api/auth/${username}`);
+          userRes = await api.get(`/auth/${username}`);
         }
 
         setUser(userRes.data);
@@ -65,14 +65,14 @@ export default function Profile() {
     if (!currentUser || !user) return;
     try {
       if (isFollowing) {
-        await api.put(`/api/auth/${user._id}/unfollow`);
+        await api.put(`/auth/${user._id}/unfollow`);
         setUser((prev) => ({
           ...prev,
           followers: prev.followers.filter((id) => id !== currentUser._id),
         }));
         setIsFollowing(false);
       } else {
-        await api.put(`/api/auth/${user._id}/follow`);
+        await api.put(`/auth/${user._id}/follow`);
         setUser((prev) => ({
           ...prev,
           followers: [...prev.followers, currentUser._id],
@@ -105,7 +105,7 @@ export default function Profile() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-16">
             <div className="flex justify-center sm:justify-start">
               <img
-                src={user.profilePicture || "/avatar.png"}
+                src={user.profilePicture ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}` : "/avatar.png"}
                 alt="Profile"
                 className="w-36 h-36 rounded-full object-cover border border-gray-500"
               />

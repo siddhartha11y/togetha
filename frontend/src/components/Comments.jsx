@@ -24,7 +24,7 @@ export default function Comments({ postId, postAuthorId }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/api/auth/profile", { withCredentials: true }); 
+        const res = await api.get("/auth/profile", { withCredentials: true }); 
         setCurrentUser(res.data); // must return { _id, username, ... }
       } catch (err) {
         console.error("Error fetching user:", err);
@@ -37,7 +37,7 @@ export default function Comments({ postId, postAuthorId }) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await api.get(`/api/posts/${postId}/comments`, {
+        const res = await api.get(`/posts/${postId}/comments`, {
           withCredentials: true,
         });
         setComments(res.data);
@@ -69,7 +69,7 @@ export default function Comments({ postId, postAuthorId }) {
     setIsSubmitting(true);
     try {
       const res = await api.post(
-        `/api/posts/${postId}/comments`,
+        `/posts/${postId}/comments`,
         { text: newComment },
         { withCredentials: true }
       );
@@ -103,7 +103,7 @@ export default function Comments({ postId, postAuthorId }) {
   const handleDelete = async (commentId) => {
     try {
       const res = await api.delete(
-        `/api/posts/${postId}/comments/${commentId}`,
+        `/posts/${postId}/comments/${commentId}`,
         { withCredentials: true }
       );
       setComments(res.data.comments);

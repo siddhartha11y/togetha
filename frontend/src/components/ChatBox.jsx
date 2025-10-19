@@ -58,7 +58,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
 
         // Add call start message to chat
         try {
-          const response = await api.post(`/api/messages/${selectedChat._id}`, {
+          const response = await api.post(`/messages/${selectedChat._id}`, {
             content: "📞 Audio call started",
             messageType: 'call_history',
             callInfo: {
@@ -110,7 +110,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
 
         // Add call start message to chat
         try {
-          const response = await api.post(`/api/messages/${selectedChat._id}`, {
+          const response = await api.post(`/messages/${selectedChat._id}`, {
             content: "📹 Video call started",
             messageType: 'call_history',
             callInfo: {
@@ -186,7 +186,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
   const handleClearChat = async () => {
     setShowThreeDotMenu(false);
     try {
-      await api.delete(`/api/messages/${selectedChat._id}/clear`);
+      await api.delete(`/messages/${selectedChat._id}/clear`);
       setMessages([]);
       toast.success("Chat cleared");
     } catch (error) {
@@ -197,7 +197,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
   const handleDeleteChat = async () => {
     setShowThreeDotMenu(false);
     try {
-      await api.delete(`/api/chats/${selectedChat._id}`);
+      await api.delete(`/chats/${selectedChat._id}`);
       toast.success("Chat deleted");
       // Navigate back or refresh chat list
       navigate('/messages');
@@ -268,7 +268,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
     const fetchMessages = async () => {
       setIsLoading(true);
       try {
-        const { data } = await api.get(`/api/messages/${selectedChat._id}`);
+        const { data } = await api.get(`/messages/${selectedChat._id}`);
         setMessages(data);
         
         // Join chat room for real-time updates
@@ -413,7 +413,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
     }
 
     try {
-      const { data } = await api.post(`/api/messages/${selectedChat._id}`, {
+      const { data } = await api.post(`/messages/${selectedChat._id}`, {
         content: messageContent,
       });
 

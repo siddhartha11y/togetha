@@ -15,7 +15,7 @@ export default function PostModal({ postId, isOpen, onClose, currentUser }) {
       const fetchPost = async () => {
         setLoading(true);
         try {
-          const response = await api.get(`/api/posts/${postId}`, { 
+          const response = await api.get(`/posts/${postId}`, { 
             withCredentials: true 
           });
           setPost(response.data);

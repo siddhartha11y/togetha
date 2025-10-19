@@ -105,7 +105,7 @@ export default function StoryViewer({
   // Mark story as viewed
   useEffect(() => {
     if (currentStory) {
-      api.get(`/api/stories/${currentStory._id}`).catch(console.error);
+      api.get(`/stories/${currentStory._id}`).catch(console.error);
     }
   }, [currentStory]);
 
@@ -127,7 +127,7 @@ export default function StoryViewer({
 
   const fetchStoryViews = async () => {
     try {
-      const { data } = await api.get(`/api/stories/${currentStory._id}/views`);
+      const { data } = await api.get(`/stories/${currentStory._id}/views`);
       setStoryViews(data.views);
       setShowViews(true);
     } catch (error) {
@@ -139,7 +139,7 @@ export default function StoryViewer({
 
   const deleteStory = async () => {
     try {
-      await api.delete(`/api/stories/${currentStory._id}`);
+      await api.delete(`/stories/${currentStory._id}`);
       setShowMenu(false);
       onClose(); // Close the story viewer after deletion
     } catch (error) {
@@ -218,7 +218,7 @@ export default function StoryViewer({
           </button>
 
           {/* Music Controls */}
-          {currentStory.music && (
+          {currentStory.music && currentStory.music.title && (
             <button
               onClick={() => setMusicMuted(!musicMuted)}
               className="p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 transition-colors"
@@ -311,6 +311,47 @@ export default function StoryViewer({
           </div>
         )}
 
+        {/* Text Elements Overlay */}
+        {currentStory.textElements && currentStory.textElements.map((textElement) => (
+          <div
+            key={textElement.id}
+            className="absolute pointer-events-none"
+            style={{
+              left: `${textElement.x}px`,
+              top: `${textElement.y}px`,
+              color: textElement.color,
+              fontSize: `${textElement.size}px`,
+              transform: `rotate(${textElement.rotation || 0}deg)`,
+              fontFamily: textElement.font === 'modern' ? 'system-ui' : 
+                         textElement.font === 'classic' ? 'serif' : 
+                         textElement.font === 'bold' ? 'Arial Black' : 'system-ui',
+              fontWeight: textElement.font === 'bold' ? 'bold' : 'normal',
+              textShadow: textElement.background === 'shadow' ? '2px 2px 4px rgba(0,0,0,0.5)' : 'none',
+              backgroundColor: textElement.background === 'solid' ? 'rgba(0,0,0,0.5)' : 'transparent',
+              padding: textElement.background === 'solid' ? '4px 8px' : '0',
+              borderRadius: textElement.background === 'solid' ? '4px' : '0'
+            }}
+          >
+            {textElement.text}
+          </div>
+        ))}
+
+        {/* Stickers Overlay */}
+        {currentStory.stickers && currentStory.stickers.map((sticker) => (
+          <div
+            key={sticker.id}
+            className="absolute pointer-events-none"
+            style={{
+              left: `${sticker.x}px`,
+              top: `${sticker.y}px`,
+              fontSize: `${sticker.size}px`,
+              transform: `rotate(${sticker.rotation || 0}deg)`
+            }}
+          >
+            {sticker.emoji}
+          </div>
+        ))}
+
         {/* Navigation Areas */}
         <div className="absolute inset-0 flex">
           <div
@@ -339,7 +380,7 @@ export default function StoryViewer({
         )}
 
         {/* Music Info */}
-        {currentStory.music && (
+        {currentStory.music && currentStory.music.title && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

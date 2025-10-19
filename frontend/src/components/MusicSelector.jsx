@@ -40,7 +40,7 @@ export default function MusicSelector({ onSelectMusic, onClose, selectedMusic })
       if (selectedMood !== "All") params.append("mood", selectedMood);
       if (searchQuery) params.append("search", searchQuery);
       
-      const { data } = await api.get(`/api/music/library?${params}`);
+      const { data } = await api.get(`/music/library?${params}`);
       setTracks(data.tracks);
       setCategories(data.categories);
       setMoods([{ name: "All", icon: "🎵" }, ...data.moods]);

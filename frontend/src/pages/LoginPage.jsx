@@ -25,14 +25,14 @@ export default function LoginPage() {
 
     try {
       const response = await api.post(
-        "/api/auth/login",
+        "/auth/login",
         formData,
         { withCredentials: true }
       );
       
       // Get user profile after successful login
       const profileResponse = await api.get(
-        "/api/auth/profile",
+        "/auth/profile",
         { withCredentials: true }
       );
       

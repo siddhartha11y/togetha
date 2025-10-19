@@ -26,6 +26,7 @@
     "react-toastify": "^11.0.5",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
+    "togetha": "file:..",
     "zustand": "^5.0.7"
   },
   "devDependencies": {

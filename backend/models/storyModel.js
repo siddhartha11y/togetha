@@ -25,6 +25,24 @@ const storySchema = new mongoose.Schema({
     type: String,
     default: "#ffffff",
   },
+  textElements: [{
+    id: { type: String },
+    text: { type: String },
+    x: { type: Number, default: 50 },
+    y: { type: Number, default: 50 },
+    color: { type: String, default: "#ffffff" },
+    size: { type: Number, default: 24 },
+    font: { type: String, default: "modern" },
+    background: { type: String, default: "none" },
+    rotation: { type: Number, default: 0 }
+  }],
+  stickers: [{
+    id: { type: String },
+    type: { type: String },
+    x: { type: Number },
+    y: { type: Number },
+    size: { type: Number, default: 50 }
+  }],
   music: {
     title: { type: String },
     artist: { type: String },
@@ -82,14 +100,52 @@ storySchema.methods.isExpired = function() {
 };
 
 // Method to add a view
-storySchema.methods.addView = function(userId) {
-  // Don't add view if user already viewed this story
-  const existingView = this.views.find(view => view.user.toString() === userId.toString());
-  if (!existingView && this.author.toString() !== userId.toString()) {
-    this.views.push({ user: userId });
-    return this.save();
+storySchema.methods.addView = async function(userId) {
+  const userIdStr = userId.toString();
+  const authorIdStr = this.author.toString();
+  
+  // NEVER add view if it's the story owner
+  if (authorIdStr === userIdStr) {
+    console.log(`🚫 Owner ${userIdStr} viewing their own story - BLOCKED`);
+    return this;
   }
-  return Promise.resolve(this);
+
+  // Don't add view if user already viewed this story
+  const existingView = this.views.find(view => view.user.toString() === userIdStr);
+  if (existingView) {
+    console.log(`🚫 User ${userIdStr} already viewed story ${this._id} - BLOCKED duplicate`);
+    return this;
+  }
+
+  // Add the view
+  this.views.push({ user: userId });
+  console.log(`✅ Adding view for user ${userIdStr} to story ${this._id}`);
+  return await this.save();
+};
+
+// Method to clean up invalid views (owner views and duplicates)
+storySchema.methods.cleanupViews = async function() {
+  const authorId = this.author.toString();
+  const uniqueViews = [];
+  const seenUsers = new Set();
+
+  for (const view of this.views) {
+    const userId = view.user.toString();
+    
+    // Skip owner views and duplicate views
+    if (userId !== authorId && !seenUsers.has(userId)) {
+      uniqueViews.push(view);
+      seenUsers.add(userId);
+    }
+  }
+
+  if (uniqueViews.length !== this.views.length) {
+    this.views = uniqueViews;
+    console.log(`Cleaned up views for story ${this._id}: ${this.views.length} valid views remaining`);
+    return await this.save();
+  }
+  
+  return this;
 };
 
 export default mongoose.model("Story", storySchema);

@@ -42,7 +42,7 @@ export default function StoriesCarousel({ user }) {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get("/api/stories");
+      const { data } = await api.get("/stories");
       setStories(data);
     } catch (error) {
       console.error("Error fetching stories:", error);
@@ -90,7 +90,7 @@ export default function StoriesCarousel({ user }) {
 
   return (
     <>
-      <div className="bg-black border-b border-gray-800">
+      <div className="mb-6">
         <div className="max-w-2xl mx-auto pr-4 py-6">
           <div className="flex space-x-4 overflow-x-auto stories-scroll">
             {/* Your Story - Show your story if you have one, otherwise show create button */}

@@ -25,7 +25,6 @@ export default function Sidebar({ user }) {
     { action: () => setShowCreatePostModal(true), icon: <PlusCircle size={22} />, label: "Create Post" },
     { action: () => setShowCreateStoryModal(true), icon: <Camera size={22} />, label: "Create Story" },
     { to: "/explore", icon: <Compass size={22} />, label: "Explore" },
-    { to: "/friends", icon: <Users size={22} />, label: "Friends" },
     { to: "/messages", icon: <MessageCircle size={22} />, label: "Messages" },
   ];
 

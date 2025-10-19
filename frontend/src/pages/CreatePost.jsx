@@ -8,7 +8,7 @@ export default function CreatePost() {
   const navigate = useNavigate();
 
   const createPost = async (formData) => {
-    const res = await api.post("/api/posts", formData, {
+    const res = await api.post("/posts", formData, {
       headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });

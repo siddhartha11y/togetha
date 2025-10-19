@@ -72,7 +72,7 @@ export default function CreateStoryModal({ user, onClose, onStoryCreated }) {
         formData.append("music", JSON.stringify(selectedMusic));
       }
 
-      await api.post("/api/stories", formData, {
+      await api.post("/stories", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

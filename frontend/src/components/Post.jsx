@@ -42,7 +42,7 @@ export default function Post({ post, currentUser }) {
 
     try {
       const res = await api.post(
-        `/api/posts/${post._id}/like`,
+        `/posts/${post._id}/like`,
         {},
         { withCredentials: true }
       );
@@ -60,7 +60,7 @@ export default function Post({ post, currentUser }) {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/api/posts/${post._id}`, { withCredentials: true });
+      await api.delete(`/posts/${post._id}`, { withCredentials: true });
       toast.success("Post deleted successfully");
       setConfirmDelete(false);
       // refresh feed or redirect
@@ -78,7 +78,7 @@ export default function Post({ post, currentUser }) {
         <div className="flex items-center gap-3 font-semibold text-purple-400">
           {post.author?.profilePicture ? (
             <img
-              src={post.author.profilePicture}
+              src={`${import.meta.env.VITE_API_BASE_URL}${post.author.profilePicture}`}
               alt={post.author.username}
               className="w-10 h-10 rounded-full object-cover border border-gray-700"
             />

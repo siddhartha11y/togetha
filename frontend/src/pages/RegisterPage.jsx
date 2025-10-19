@@ -32,14 +32,14 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/api/auth/register", {
+      const res = await api.post("/auth/register", {
         username: form.username,
         email: form.email,
         password: form.password,
       });
 
       // Get user profile after successful registration
-      const profileResponse = await api.get("/api/auth/profile");
+      const profileResponse = await api.get("/auth/profile");
       
       // Store user data in Zustand store
       setUser(profileResponse.data);

@@ -45,32 +45,44 @@ const upload = multer({
 // Create a new story
 const createStory = async (req, res) => {
   try {
-    const { content, backgroundColor, textColor, music, gif, duration } = req.body;
+    const { content, backgroundColor, textColor, music, gif, duration, storyData } = req.body;
     const userId = req.user.id;
 
-    // Validate input - story must have content, media, or GIF
-    if (!content && !req.file && !gif) {
-      return res.status(400).json({ message: "Story must have content, media, or GIF" });
+    // Parse story data if provided
+    let parsedStoryData = {};
+    if (storyData) {
+      try {
+        parsedStoryData = JSON.parse(storyData);
+      } catch (error) {
+        console.error("Error parsing story data:", error);
+      }
     }
 
-    const storyData = {
+    // Validate input - story must have content, media, GIF, or text elements
+    if (!content && !req.file && !gif && (!parsedStoryData.textElements || parsedStoryData.textElements.length === 0)) {
+      return res.status(400).json({ message: "Story must have content, media, GIF, or text elements" });
+    }
+
+    const storyDataObj = {
       author: userId,
       content: content || "",
-      backgroundColor: backgroundColor || "#000000",
+      backgroundColor: backgroundColor || parsedStoryData.backgroundColor || "#000000",
       textColor: textColor || "#ffffff",
       duration: duration ? parseInt(duration) : 5000, // Default 5 seconds
+      textElements: parsedStoryData.textElements || [],
+      stickers: parsedStoryData.stickers || [],
     };
 
     // Add media if uploaded
     if (req.file) {
-      storyData.media = `/images/stories/${req.file.filename}`;
-      storyData.mediaType = req.file.mimetype.startsWith("video") ? "video" : "image";
+      storyDataObj.media = `/images/stories/${req.file.filename}`;
+      storyDataObj.mediaType = req.file.mimetype.startsWith("video") ? "video" : "image";
     }
 
     // Add GIF if provided
     if (gif) {
       try {
-        storyData.gif = JSON.parse(gif);
+        storyDataObj.gif = JSON.parse(gif);
       } catch (error) {
         console.error("Error parsing GIF data:", error);
       }
@@ -79,13 +91,13 @@ const createStory = async (req, res) => {
     // Add music if provided
     if (music) {
       try {
-        storyData.music = JSON.parse(music);
+        storyDataObj.music = JSON.parse(music);
       } catch (error) {
         console.error("Error parsing music data:", error);
       }
     }
 
-    const story = new Story(storyData);
+    const story = new Story(storyDataObj);
     await story.save();
 
     // Populate author info
@@ -214,9 +226,11 @@ const getUserStories = async (req, res) => {
       .populate("views.user", "username fullName profilePicture")
       .sort({ createdAt: -1 });
 
-    // Mark stories as viewed by current user
-    for (const story of stories) {
-      await story.addView(currentUserId);
+    // Mark stories as viewed by current user (only if not viewing own stories)
+    if (userId !== currentUserId) {
+      for (const story of stories) {
+        await story.addView(currentUserId);
+      }
     }
 
     res.json(stories);
@@ -245,6 +259,7 @@ const viewStory = async (req, res) => {
     }
 
     // Add view if not already viewed
+    console.log(`viewStory: User ${userId} viewing story ${storyId} by author ${story.author}`);
     await story.addView(userId);
 
     res.json(story);
@@ -304,9 +319,17 @@ const getStoryViews = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to view story analytics" });
     }
 
+    // Clean up any invalid views before returning
+    await story.cleanupViews();
+
+    // Double-check: filter out any owner views that might still exist
+    const validViews = story.views.filter(view => 
+      view.user && view.user._id.toString() !== userId
+    );
+
     res.json({
-      totalViews: story.viewCount,
-      views: story.views,
+      totalViews: validViews.length,
+      views: validViews,
     });
   } catch (error) {
     console.error("Error fetching story views:", error);

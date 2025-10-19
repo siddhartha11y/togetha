@@ -1,16 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
-import { PlusCircle, LogOut } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { FiSearch } from "react-icons/fi";
 import api from "../api/axios";
-import NotificationsDropdown from "./NotificationDropdown";
+import NotificationModal from "./NotificationModal";
 import MessageNotification from "./MessageNotification";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchType, setSearchType] = useState("users"); // "users" or "posts"
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -22,7 +24,7 @@ export default function Navbar() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api.get("/api/auth/profile", { withCredentials: true });
+        const res = await api.get("/auth/profile", { withCredentials: true });
         setUser(res.data);
       } catch (err) {
         console.error("Error fetching user profile:", err);
@@ -31,10 +33,24 @@ export default function Navbar() {
     fetchProfile();
   }, []);
 
+  // 🔹 Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await api.get("/notifications", { withCredentials: true });
+        const unread = res.data.filter(n => !n.isRead).length;
+        setUnreadCount(unread);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    };
+    fetchUnreadCount();
+  }, []);
+
   // 🔹 Logout
   const handleLogout = async () => {
     try {
-      await api.post("/api/auth/logout", {}, { withCredentials: true });
+      await api.post("/auth/logout", {}, { withCredentials: true });
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);
@@ -65,8 +81,8 @@ export default function Navbar() {
       setLoading(true);
       const endpoint =
         searchType === "users"
-          ? `/api/auth/search?q=${query}`
-          : `/api/posts/search?q=${query}`;
+          ? `/auth/search?q=${query}`
+          : `/posts/search?q=${query}`;
       const res = await api.get(endpoint, { withCredentials: true });
       setResults(res.data);
     } catch (err) {
@@ -84,12 +100,12 @@ export default function Navbar() {
   const toggleFollow = async (id, isFollowing) => {
     try {
       if (isFollowing) {
-        await api.put(`/api/auth/${id}/unfollow`, {}, { withCredentials: true });
+        await api.put(`/auth/${id}/unfollow`, {}, { withCredentials: true });
         setResults((prev) =>
           prev.map((u) => (u._id === id ? { ...u, isFollowing: false } : u))
         );
       } else {
-        await api.put(`/api/auth/${id}/follow`, {}, { withCredentials: true });
+        await api.put(`/auth/${id}/follow`, {}, { withCredentials: true });
         setResults((prev) =>
           prev.map((u) => (u._id === id ? { ...u, isFollowing: true } : u))
         );
@@ -232,17 +248,21 @@ export default function Navbar() {
 
         </div>
 
-        {/* Create Post */}
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Link
-            to="/create-post"
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 hover:shadow-[0_0_15px_#6C63FF] transition-all duration-300"
-          >
-            <PlusCircle size={20} /> Create
-          </Link>
+        {/* Notifications */}
+        <motion.div 
+          whileHover={{ scale: 1.1 }}
+          className="relative cursor-pointer"
+          onClick={() => setShowNotificationModal(true)}
+        >
+          <div className="p-2 rounded-full hover:bg-gray-800 transition-colors">
+            <Bell size={24} className="text-gray-300 hover:text-purple-400" />
+          </div>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
         </motion.div>
-          
-           <NotificationsDropdown />
 
              {/* 💬 Messages */}
         <MessageNotification />
@@ -254,7 +274,7 @@ export default function Navbar() {
           >
             {user?.profilePicture ? (
               <img
-                src={user.profilePicture}
+                src={`${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`}
                 alt={user.username}
                 className="w-8 h-8 rounded-full object-cover border border-gray-700  transition-transform duration-200 ease-in-out 
              hover:scale-110 hover:text-purple-400 
@@ -281,6 +301,25 @@ export default function Navbar() {
           <span className="hidden sm:inline font-medium">Logout</span>
         </motion.button>
       </div>
+
+      {/* Notification Modal */}
+      <NotificationModal 
+        isOpen={showNotificationModal} 
+        onClose={() => {
+          setShowNotificationModal(false);
+          // Refresh unread count after closing modal
+          const fetchUnreadCount = async () => {
+            try {
+              const res = await api.get("/notifications", { withCredentials: true });
+              const unread = res.data.filter(n => !n.isRead).length;
+              setUnreadCount(unread);
+            } catch (err) {
+              console.error("Error fetching notifications:", err);
+            }
+          };
+          fetchUnreadCount();
+        }} 
+      />
     </nav>
   );
 }

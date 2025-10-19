@@ -63,7 +63,7 @@ export default function CreatePostModal({ user, onClose, onPostCreated }) {
         formData.append("image", selectedFile);
       }
 
-      await api.post("/api/posts", formData, {
+      await api.post("/posts", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
