@@ -1,4 +1,12 @@
 {
+  "name": "togetha",
+  "version": "1.0.0",
+  "description": "Modern social media platform with real-time messaging and stories",
+  "main": "backend/app.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
     "agora-rtc-sdk-ng": "^4.24.0",
     "axios": "^1.11.0",
@@ -7,5 +15,23 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/plugin-transform-optional-chaining": "^7.27.1"
-  }
+  },
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "npm run start --prefix backend",
+    "dev": "npm run dev --prefix backend",
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/siddhartha11y/togetha.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/siddhartha11y/togetha/issues"
+  },
+  "homepage": "https://github.com/siddhartha11y/togetha#readme",
+  "description": ""
 }
