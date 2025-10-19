@@ -192,9 +192,9 @@ export default function EnhancedMusicSelector({ onSelectMusic, onClose, selected
           endpoint = '/api/music/trending?limit=30';
       }
 
-      console.log('Fetching music from:', `http://localhost:3000${endpoint}`);
-      
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      console.log('Fetching music from:', `${import.meta.env.VITE_API_BASE_URL}${endpoint}`);
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
@@ -241,7 +241,7 @@ export default function EnhancedMusicSelector({ onSelectMusic, onClose, selected
     try {
       console.log('Searching for:', query);
       
-      const response = await fetch(`http://localhost:5000/api/music/search?query=${encodeURIComponent(query)}&limit=30`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/music/search?query=${encodeURIComponent(query)}&limit=30`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'

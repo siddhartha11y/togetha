@@ -2,8 +2,8 @@
 const axios = require('axios').default;
 
 async function testEndpoints() {
-  const baseURL = 'http://localhost:5000';
-  
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
   console.log('🧪 Testing new endpoints...\n');
   
   try {
@@ -34,4 +34,6 @@ async function testEndpoints() {
   } catch (error) {
     if (error.code === 'ECONNREFUSED') {
       console.log('❌ Backend server not running');
-      console.log('Start with: cd 
+      console.log('Start with: cd backend && nodemon server.js');
+    }
+  }}

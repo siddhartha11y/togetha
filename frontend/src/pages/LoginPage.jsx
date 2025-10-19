@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Users } from "lucide-react";
 import useUserStore from "../store/userStore";
 import { toast } from "react-toastify";
+import api from "../api/axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -23,15 +24,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+      const response = await api.post(
+        "/api/auth/login",
         formData,
         { withCredentials: true }
       );
       
       // Get user profile after successful login
-      const profileResponse = await axios.get(
-        "http://localhost:5000/api/auth/profile",
+      const profileResponse = await api.get(
+        "/api/auth/profile",
         { withCredentials: true }
       );
       

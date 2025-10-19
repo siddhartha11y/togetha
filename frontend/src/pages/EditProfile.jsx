@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../api/axios";
+import { toast } from "react-toastify";
 
 export default function EditProfile() {
   const [form, setForm] = useState({
@@ -51,7 +52,7 @@ export default function EditProfile() {
       navigate("/profile", { state: { showSuccessToast: true } });
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile");
+      toast.error("Failed to update profile, please try again with jpeg, png, jpg, gif format.");
     }
   };
 

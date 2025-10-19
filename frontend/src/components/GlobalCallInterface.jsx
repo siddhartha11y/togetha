@@ -191,7 +191,7 @@ export default function GlobalCallInterface() {
       
       // Add call history to chat via API
       try {
-        const response = await fetch(`http://localhost:5000/api/messages/${agoraService.chatId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/messages/${agoraService.chatId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -269,7 +269,7 @@ export default function GlobalCallInterface() {
                   const profilePicUrl = otherPerson?.profilePicture || otherPerson?.profilePic || otherPerson?.avatar;
                   return profilePicUrl ? (
                     <img 
-                      src={`http://localhost:5000${profilePicUrl}`} 
+                      src={`${import.meta.env.VITE_API_BASE_URL}${profilePicUrl}`} 
                       alt={otherPerson.fullName || otherPerson.username} 
                       className="w-full h-full object-cover"
                       onError={(e) => {

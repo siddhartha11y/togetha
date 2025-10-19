@@ -251,7 +251,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
       console.log("Selected chat:", selectedChat);
       console.log("Other user:", otherUser);
       console.log("Other user profile picture:", otherUser?.profilePicture);
-      console.log("Full profile picture URL:", `http://localhost:5000${otherUser?.profilePicture}`);
+      console.log("Full profile picture URL:", `${import.meta.env.VITE_API_BASE_URL}${otherUser?.profilePicture}`);
       console.log("==================");
     }
   }, [selectedChat, otherUser]);
@@ -498,7 +498,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
             >
               {otherUser?.profilePicture && otherUser.profilePicture !== "/images/default-avatar.png" ? (
                 <img
-                  src={`http://localhost:5000${otherUser.profilePicture}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${otherUser.profilePicture}`}
                   alt={chatTitle}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -722,7 +722,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
                               <img
                                 src={msg.sharedPost.imageUrl.startsWith('http') 
                                   ? msg.sharedPost.imageUrl 
-                                  : `http://localhost:5000${msg.sharedPost.imageUrl}`}
+                                  : `${import.meta.env.VITE_API_BASE_URL}${msg.sharedPost.imageUrl}`}
                                 alt={msg.sharedPost.title}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
@@ -748,7 +748,7 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
                             <div className="flex items-center gap-2">
                               <img
                                 src={msg.sharedPost.author?.profilePicture 
-                                  ? `http://localhost:5000${msg.sharedPost.author.profilePicture}`
+                                  ? `${import.meta.env.VITE_API_BASE_URL}${msg.sharedPost.author.profilePicture}`
                                   : '/default-avatar.png'
                                 }
                                 alt={msg.sharedPost.author?.username}

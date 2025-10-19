@@ -157,7 +157,7 @@ export default function CallNotification({ onCallAccepted }) {
               {incomingCall.caller?.profilePicture && 
                incomingCall.caller.profilePicture !== "/images/default-avatar.png" ? (
                 <img
-                  src={`http://localhost:5000${incomingCall.caller.profilePicture}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${incomingCall.caller.profilePicture}`}
                   alt={incomingCall.caller.fullName || incomingCall.caller.username}
                   className="w-full h-full object-cover"
                 />

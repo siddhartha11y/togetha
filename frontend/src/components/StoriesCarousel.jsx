@@ -185,7 +185,7 @@ export default function StoriesCarousel({ user }) {
                             "/images/default-avatar.png" &&
                           userStory.author.profilePicture !==
                             "/images/default-avatar.svg"
-                            ? `http://localhost:5000${userStory.author.profilePicture}`
+                            ? `${import.meta.env.VITE_API_BASE_URL}${userStory.author.profilePicture}`
                             : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%236B7280'/%3E%3Ccircle cx='40' cy='30' r='12' fill='%239CA3AF'/%3E%3Cpath d='M15 65 C15 52, 27 45, 40 45 C53 45, 65 52, 65 65' fill='%239CA3AF'/%3E%3C/svg%3E"
                         }
                         alt={userStory.author.username}

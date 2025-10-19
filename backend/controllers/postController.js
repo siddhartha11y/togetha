@@ -115,7 +115,7 @@ export const postLikes = async (req, res) => {
       // Like
       post.likes.push(userId);
 
-      // 🔔 create notification only if not liking own post
+      //  create notification only if not liking own post
       if (postOwnerId !== userId) {
         await Notification.create({
           recipient: postOwnerId,

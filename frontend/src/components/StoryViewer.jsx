@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatCommentTime, formatInstagramTime } from "../utils/timeUtils";
 import {
   X,
   ChevronLeft,
@@ -190,9 +191,9 @@ export default function StoryViewer({
           <img
             src={
               currentStory.author?.profilePicture
-                ? `http://localhost:5000${currentStory.author.profilePicture}`
+                ? `${import.meta.env.VITE_API_BASE_URL}${currentStory.author.profilePicture}`
                 : user?.profilePicture
-                ? `http://localhost:5000${user.profilePicture}`
+                ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`
                 : "/default-avatar.png"
             }
             alt={currentStory.author?.username || user?.username}
@@ -283,7 +284,7 @@ export default function StoryViewer({
         ) : currentStory.media ? (
           currentStory.mediaType === "video" ? (
             <video
-              src={`http://localhost:5000${currentStory.media}`}
+              src={`${import.meta.env.VITE_API_BASE_URL}${currentStory.media}`}
               className="w-full h-full object-cover rounded-lg"
               autoPlay
               muted
@@ -291,7 +292,7 @@ export default function StoryViewer({
             />
           ) : (
             <img
-              src={`http://localhost:5000${currentStory.media}`}
+              src={`${import.meta.env.VITE_API_BASE_URL}${currentStory.media}`}
               alt="Story"
               className="w-full h-full object-cover rounded-lg"
             />
@@ -432,7 +433,7 @@ export default function StoryViewer({
                   <img
                     src={
                       view.user.profilePicture
-                        ? `http://localhost:5000${view.user.profilePicture}`
+                        ? `${import.meta.env.VITE_API_BASE_URL}${view.user.profilePicture}`
                         : "/default-avatar.png"
                     }
                     alt={view.user.username}
@@ -443,7 +444,7 @@ export default function StoryViewer({
                       {view.user.username}
                     </p>
                     <p className="text-gray-400 text-sm">
-                      {formatTime(view.viewedAt)}
+                      {formatCommentTime(view.viewedAt)}
                     </p>
                   </div>
                 </div>

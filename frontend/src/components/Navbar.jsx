@@ -107,7 +107,7 @@ export default function Navbar() {
         whileHover={{ scale: 1.05, textShadow: "0 0 15px #6C63FF" }}
         onClick={() => navigate("/home")}
       >
-        Socia
+        togetha
       </motion.h1>
 
       <div className="flex items-center gap-4">

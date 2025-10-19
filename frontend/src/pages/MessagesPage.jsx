@@ -340,7 +340,7 @@ export default function MessagesPage() {
                     chatId: chat._id,
                     otherUser: otherUser,
                     profilePicture: otherUser?.profilePicture,
-                    fullURL: `http://localhost:5000${otherUser?.profilePicture}`,
+                    fullURL: `${import.meta.env.VITE_API_BASE_URL}${otherUser?.profilePicture}`,
                   });
 
                   const lastMessage = chat.latestMessage;
@@ -370,7 +370,7 @@ export default function MessagesPage() {
                             otherUser.profilePicture !==
                               "/images/default-avatar.png" ? (
                               <img
-                                src={`http://localhost:5000${otherUser.profilePicture}`}
+                                src={`${import.meta.env.VITE_API_BASE_URL}${otherUser.profilePicture}`}
                                 alt={chatName}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {

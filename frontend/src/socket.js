@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = import.meta.env.VITE_API_BASE_URL;
 
 class SocketService {
   constructor() {
