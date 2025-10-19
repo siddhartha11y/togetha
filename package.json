@@ -18,8 +18,8 @@
   },
   "scripts": {
     "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "npm run start --prefix backend",
-    "dev": "npm run dev --prefix backend",
+    "start": "node backend/app.js",
+    "dev": "cd backend && npm run dev",
     "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend"
   },
   "repository": {
@@ -32,6 +32,5 @@
   "bugs": {
     "url": "https://github.com/siddhartha11y/togetha/issues"
   },
-  "homepage": "https://github.com/siddhartha11y/togetha#readme",
-  "description": ""
+  "homepage": "https://github.com/siddhartha11y/togetha#readme"
 }
