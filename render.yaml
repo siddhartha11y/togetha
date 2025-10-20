@@ -3,11 +3,16 @@ services:
     name: togetha
     env: node
     plan: free
-    buildCommand: npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
-    autoDeploy: false
+      # Render provides PORT automatically; don't override it
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://togetha.onrender.com
+    autoDeploy: true
