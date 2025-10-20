@@ -1,9 +1,9 @@
-import express from 'express';
-import verifytoken from '../middleware/JWT.auth.js'; // your JWT auth middleware
-import uploadProfile from '../config/multerProfile.js'; // your multer config for profile picture upload
- 
+const express = require('express');
+const verifytoken = require('../middleware/JWT.auth.js');
+const uploadProfile = require('../config/multerProfile.js');
+const { authRegister, authLogin, authProfile, updateProfile, authLogout, followUser, unfollowUser, getUserByUsername, searchUsers, getFollowing, getFollowers } = require("../controllers/authController.js");
+
 const router = express.Router();
-import { authRegister, authLogin, authProfile, updateProfile, authLogout, followUser, unfollowUser, getUserByUsername, searchUsers, getFollowing, getFollowers } from "../controllers/authController.js";
 
 
 router.post('/register', authRegister);
@@ -20,6 +20,6 @@ router.get("/:username", getUserByUsername);
 router.put("/:id/follow", verifytoken, followUser);
 router.put("/:id/unfollow", verifytoken, unfollowUser);
 
-export default router;
+module.exports = router;
 
 
