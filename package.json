@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Modern social media platform with real-time messaging and stories",
   "main": "backend/app.js",
+  "type": "module",
   "engines": {
-    "node": ">=18.0.0",
+    "node": "20.x",
     "npm": ">=8.0.0"
   },
   "dependencies": {
