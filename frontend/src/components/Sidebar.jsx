@@ -112,6 +112,7 @@ export default function Sidebar({ user, isOpen, onToggle }) {
           />
         )}
       </AnimatePresence>
-    </aside>
+      </aside>
+    </>
   );
 }
