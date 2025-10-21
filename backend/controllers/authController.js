@@ -61,7 +61,7 @@ export async function authRegister(req, res) {
         username: savedUser.username,
         email: savedUser.email,
         profilePicture: savedUser.profilePicture
-          ? `${process.env.NODE_ENV === "production" ? "https" : req.protocol}://${req.get("host")}${savedUser.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${savedUser.profilePicture}`
           : null,
         bio: savedUser.bio,
       },
@@ -113,7 +113,7 @@ export async function authLogin(req, res) {
         username: user.username,
         email: user.email,
         profilePicture: user.profilePicture
-          ? `${process.env.NODE_ENV === "production" ? "https" : req.protocol}://${req.get("host")}${user.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${user.profilePicture}`
           : null,
         bio: user.bio,
       },
@@ -139,12 +139,12 @@ export async function authProfile(req, res) {
     res.json({
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get("host")}${user.profilePicture}`
+        ? `${getProtocol(req)}://${req.get("host")}${user.profilePicture}`
         : null,
       posts: (user.posts || []).map((post) => ({
         ...post._doc,
         imageUrl: post.imageUrl
-          ? `${req.protocol}://${req.get("host")}${post.imageUrl.replace(
+          ? `${getProtocol(req)}://${req.get("host")}${post.imageUrl.replace(
               /^https?:\/\/[^/]+/,
               ""
             )}`
@@ -153,7 +153,7 @@ export async function authProfile(req, res) {
           ? {
               ...post.author._doc,
               profilePicture: post.author.profilePicture
-                ? `${req.protocol}://${req.get("host")}${
+                ? `${getProtocol(req)}://${req.get("host")}${
                     post.author.profilePicture
                   }`
                 : null,
@@ -220,12 +220,12 @@ export async function getUserByUsername(req, res) {
     res.json({
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get("host")}${user.profilePicture}`
+        ? `${getProtocol(req)}://${req.get("host")}${user.profilePicture}`
         : null,
       posts: (user.posts || []).map((post) => ({
         ...post._doc,
         imageUrl: post.imageUrl
-          ? `${req.protocol}://${req.get("host")}${post.imageUrl.replace(
+          ? `${getProtocol(req)}://${req.get("host")}${post.imageUrl.replace(
               /^https?:\/\/[^/]+/,
               ""
             )}`
@@ -258,7 +258,7 @@ export async function searchUsers(req, res) {
       username: user.username,
       fullName: user.fullName,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get("host")}${user.profilePicture}`
+        ? `${getProtocol(req)}://${req.get("host")}${user.profilePicture}`
         : null,
       isFollowing: user.followers.includes(req.user?.id), // true/false
     }));
@@ -346,7 +346,7 @@ export const getFollowing = async (req, res) => {
       username: followedUser.username,
       fullName: followedUser.fullName,
       profilePicture: followedUser.profilePicture
-        ? `${req.protocol}://${req.get("host")}${followedUser.profilePicture}`
+        ? `${getProtocol(req)}://${req.get("host")}${followedUser.profilePicture}`
         : null
     }));
 
@@ -376,7 +376,7 @@ export const getFollowers = async (req, res) => {
       username: follower.username,
       fullName: follower.fullName,
       profilePicture: follower.profilePicture
-        ? `${req.protocol}://${req.get("host")}${follower.profilePicture}`
+        ? `${getProtocol(req)}://${req.get("host")}${follower.profilePicture}`
         : null
     }));
 
