@@ -105,7 +105,7 @@ export default function Profile() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-16">
             <div className="flex justify-center sm:justify-start">
               <img
-                src={user.profilePicture ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}` : "/avatar.png"}
+                src={user.profilePicture ? `${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${user.profilePicture}` : "/avatar.png"}
                 alt="Profile"
                 className="w-36 h-36 rounded-full object-cover border border-gray-500"
               />

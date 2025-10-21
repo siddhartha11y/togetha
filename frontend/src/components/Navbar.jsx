@@ -274,7 +274,7 @@ export default function Navbar() {
           >
             {user?.profilePicture ? (
               <img
-                src={`${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`}
+                src={`${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${user.profilePicture}`}
                 alt={user.username}
                 className="w-8 h-8 rounded-full object-cover border border-gray-700  transition-transform duration-200 ease-in-out 
              hover:scale-110 hover:text-purple-400 

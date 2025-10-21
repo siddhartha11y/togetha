@@ -191,9 +191,9 @@ export default function StoryViewer({
           <img
             src={
               currentStory.author?.profilePicture
-                ? `${import.meta.env.VITE_API_BASE_URL}${currentStory.author.profilePicture}`
+                ? `${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${currentStory.author.profilePicture}`
                 : user?.profilePicture
-                ? `${import.meta.env.VITE_API_BASE_URL}${user.profilePicture}`
+                ? `${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${user.profilePicture}`
                 : "/default-avatar.png"
             }
             alt={currentStory.author?.username || user?.username}
@@ -474,7 +474,7 @@ export default function StoryViewer({
                   <img
                     src={
                       view.user.profilePicture
-                        ? `${import.meta.env.VITE_API_BASE_URL}${view.user.profilePicture}`
+                        ? `${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${view.user.profilePicture}`
                         : "/default-avatar.png"
                     }
                     alt={view.user.username}

@@ -78,7 +78,7 @@ export default function Post({ post, currentUser }) {
         <div className="flex items-center gap-3 font-semibold text-purple-400">
           {post.author?.profilePicture ? (
             <img
-              src={`${import.meta.env.VITE_API_BASE_URL}${post.author.profilePicture}`}
+              src={`${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${post.author.profilePicture}`}
               alt={post.author.username}
               className="w-10 h-10 rounded-full object-cover border border-gray-700"
             />
