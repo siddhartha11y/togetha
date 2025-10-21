@@ -72,24 +72,24 @@ export default function Post({ post, currentUser }) {
   };
 
   return (
-    <div className="relative bg-gray-900 rounded-xl border border-gray-800 overflow-hidden shadow-md hover:shadow-[0_0_25px_#6C63FF] transition-all duration-300">
+    <div className="relative bg-gray-900 rounded-lg lg:rounded-xl border border-gray-800 overflow-hidden shadow-md hover:shadow-[0_0_25px_#6C63FF] transition-all duration-300 mx-2 lg:mx-0">
       {/* Post Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-800">
-        <div className="flex items-center gap-3 font-semibold text-purple-400">
+      <div className="flex items-center justify-between p-2 lg:p-3 border-b border-gray-800">
+        <div className="flex items-center gap-2 lg:gap-3 font-semibold text-purple-400">
           {post.author?.profilePicture ? (
             <img
               src={`${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${post.author.profilePicture}`}
               alt={post.author.username}
-              className="w-10 h-10 rounded-full object-cover border border-gray-700"
+              className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover border border-gray-700"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm lg:text-base">
               {post.author?.username?.[0]?.toUpperCase() || "U"}
             </div>
           )}
           <Link
             to={`/profile/${post.author?.username}`}
-            className="font-semibold text-purple-300 mr-1 
+            className="font-semibold text-purple-300 mr-1 text-sm lg:text-base
                transition-transform duration-200 ease-in-out 
                hover:scale-110 hover:text-purple-400 
                hover:drop-shadow-[0_0_6px_#c084fc]">
@@ -128,41 +128,43 @@ export default function Post({ post, currentUser }) {
 
       {/* Post Image */}
       {post.imageUrl && (
-        <img
-          src={post.imageUrl}
-          alt="Post"
-          className="w-full max-h-[400px] object-contain bg-gray-800"
-          loading="lazy"
-        />
+        <div className="w-full aspect-[4/3] bg-gray-800 overflow-hidden">
+          <img
+            src={post.imageUrl}
+            alt="Post"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
       )}
 
       {/* Post Actions */}
-      <div className="flex items-center gap-6 px-4 py-4 border-b border-gray-800">
+      <div className="flex items-center gap-4 lg:gap-6 px-3 lg:px-4 py-3 lg:py-4 border-b border-gray-800">
         <div className="flex items-center gap-2">
           {liked ? (
             <FaHeart
               onClick={handleLike}
-              className="cursor-pointer text-red-500 text-2xl hover:scale-110 transition-all duration-200 drop-shadow-[0_0_8px_#ef4444]"
+              className="cursor-pointer text-red-500 text-xl lg:text-2xl hover:scale-110 transition-all duration-200 drop-shadow-[0_0_8px_#ef4444]"
             />
           ) : (
             <FaRegHeart
               onClick={handleLike}
-              className="cursor-pointer text-gray-300 text-2xl hover:text-red-500 hover:scale-110 transition-all duration-200"
+              className="cursor-pointer text-gray-300 text-xl lg:text-2xl hover:text-red-500 hover:scale-110 transition-all duration-200"
             />
           )}
-          <span className="text-gray-400 text-sm font-medium">{likes} {likes === 1 ? 'like' : 'likes'}</span>
+          <span className="text-gray-400 text-xs lg:text-sm font-medium">{likes} {likes === 1 ? 'like' : 'likes'}</span>
         </div>
 
         <div className="flex items-center gap-2">
           {showComments ? (
             <FaComment
               onClick={() => setShowComments((prev) => !prev)}
-              className="cursor-pointer text-blue-500 text-2xl hover:scale-110 transition-all duration-200 drop-shadow-[0_0_8px_#3b82f6]"
+              className="cursor-pointer text-blue-500 text-xl lg:text-2xl hover:scale-110 transition-all duration-200 drop-shadow-[0_0_8px_#3b82f6]"
             />
           ) : (
             <FaRegComment
               onClick={() => setShowComments((prev) => !prev)}
-              className="cursor-pointer text-gray-300 text-2xl hover:text-blue-500 hover:scale-110 transition-all duration-200"
+              className="cursor-pointer text-gray-300 text-xl lg:text-2xl hover:text-blue-500 hover:scale-110 transition-all duration-200"
             />
           )}
         </div>
@@ -170,17 +172,17 @@ export default function Post({ post, currentUser }) {
         <div className="flex items-center gap-2">
           <FaShare
             onClick={() => setShowShareModal(true)}
-            className="cursor-pointer text-gray-300 text-2xl hover:text-green-500 hover:scale-110 transition-all duration-200"
+            className="cursor-pointer text-gray-300 text-xl lg:text-2xl hover:text-green-500 hover:scale-110 transition-all duration-200"
           />
           {post.shareCount > 0 && (
-            <span className="text-gray-400 text-sm">{post.shareCount}</span>
+            <span className="text-gray-400 text-xs lg:text-sm">{post.shareCount}</span>
           )}
         </div>
       </div>
 
       {/* Caption */}
-      <div className="px-4 py-3">
-        <p className="text-sm text-gray-300">
+      <div className="px-3 lg:px-4 py-2 lg:py-3">
+        <p className="text-sm lg:text-base text-gray-300">
           <Link
             to={`/profile/${post.author?.username}`}
             className="font-semibold text-purple-300 mr-1 

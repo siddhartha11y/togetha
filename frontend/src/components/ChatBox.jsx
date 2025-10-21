@@ -4,11 +4,11 @@ import api from "../api/axios";
 import socketService from "../socket";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Phone, Video, MoreVertical, Smile, Paperclip, Mic, Home, Share2, Heart, MessageCircle, User, VolumeX, Volume2, Shield, Trash2, MessageSquare, PhoneCall, VideoIcon } from "lucide-react";
+import { Send, Phone, Video, MoreVertical, Smile, Paperclip, Mic, Home, Share2, Heart, MessageCircle, User, VolumeX, Volume2, Shield, Trash2, MessageSquare, PhoneCall, VideoIcon, ArrowLeft } from "lucide-react";
 import PostModal from "./PostModal";
 import agoraService from "../services/agoraService";
 
-export default function ChatBox({ selectedChat, user, onMessageSent }) {
+export default function ChatBox({ selectedChat, user, onMessageSent, onBackToChats }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -492,6 +492,13 @@ export default function ChatBox({ selectedChat, user, onMessageSent }) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            {/* Back button for mobile */}
+            <button
+              onClick={onBackToChats}
+              className="lg:hidden p-2 rounded-full hover:bg-gray-800 transition-colors"
+            >
+              <ArrowLeft size={20} className="text-gray-300" />
+            </button>
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-purple-500"

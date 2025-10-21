@@ -90,9 +90,9 @@ export default function StoriesCarousel({ user }) {
 
   return (
     <>
-      <div className="mb-6">
-        <div className="max-w-2xl mx-auto pr-4 py-6">
-          <div className="flex space-x-4 overflow-x-auto stories-scroll">
+      <div className="mb-4 lg:mb-6">
+        <div className="max-w-2xl mx-auto px-2 lg:pr-4 py-3 lg:py-6">
+          <div className="flex space-x-3 lg:space-x-4 overflow-x-auto stories-scroll">
             {/* Your Story - Show your story if you have one, otherwise show create button */}
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -109,7 +109,7 @@ export default function StoriesCarousel({ user }) {
               <div className="relative">
                 {/* Always show user's profile picture */}
                 <div
-                  className={`w-28 h-28 rounded-full ${
+                  className={`w-20 h-20 lg:w-28 lg:h-28 rounded-full ${
                     ownStory
                       ? `p-1 ${
                           ownStory.hasUnviewed
@@ -142,8 +142,8 @@ export default function StoriesCarousel({ user }) {
 
                 {/* Plus icon for creating story (only when no story exists) */}
                 {!ownStory && (
-                  <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center border-2 border-gray-900">
-                    <Plus size={14} className="text-white" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 lg:w-7 lg:h-7 bg-blue-500 rounded-full flex items-center justify-center border-2 border-gray-900">
+                    <Plus size={12} className="lg:size-3.5 text-white" />
                   </div>
                 )}
 

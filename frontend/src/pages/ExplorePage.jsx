@@ -4,6 +4,9 @@ import { FaFire, FaClock, FaCalendarAlt, FaChartLine } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import api from "../api/axios";
 import Post from "../components/Post";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import MobileBottomNav from "../components/MobileBottomNav";
 import { toast } from "react-toastify";
 
 export default function ExplorePage() {
@@ -11,6 +14,7 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('week');
   const [currentUser, setCurrentUser] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch current user
   useEffect(() => {
@@ -53,13 +57,23 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50"
-      >
-        <div className="max-w-2xl mx-auto px-4 py-6">
+      <Navbar />
+      
+      <div className="flex">
+        <Sidebar 
+          user={currentUser} 
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+        
+        <div className="lg:ml-[256px] pt-[64px] flex-1 pb-16 lg:pb-0">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="sticky top-[64px] z-10 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50"
+          >
+            <div className="max-w-2xl mx-auto px-2 lg:px-4 py-4 lg:py-6">
           <div className="flex items-center justify-between">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -90,7 +104,7 @@ export default function ExplorePage() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex bg-gray-800/50 rounded-2xl p-1 border border-gray-700/50"
+              className="flex bg-gray-800/50 rounded-2xl p-1 border border-gray-700/50 overflow-x-auto"
             >
               {timeframeOptions.map((option) => {
                 const IconComponent = option.icon;
@@ -100,24 +114,24 @@ export default function ExplorePage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setTimeframe(option.value)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ${
+                    className={`flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-2 rounded-xl transition-all duration-300 whitespace-nowrap ${
                       timeframe === option.value
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25'
                         : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                     }`}
                   >
-                    <IconComponent size={16} />
-                    <span className="text-sm font-medium">{option.label}</span>
+                    <IconComponent size={14} className="lg:size-4" />
+                    <span className="text-xs lg:text-sm font-medium">{option.label}</span>
                   </motion.button>
                 );
               })}
             </motion.div>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-6">
+        {/* Content */}
+        <div className="max-w-2xl mx-auto px-2 lg:px-4 py-4 lg:py-6">
         {loading ? (
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
@@ -216,7 +230,12 @@ export default function ExplorePage() {
             </AnimatePresence>
           </motion.div>
         )}
+        </div>
       </div>
+      </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

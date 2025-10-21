@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import Navbar from "../components/Navbar";
 import { Search, MessageCircle, Home, MoreVertical, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 export default function MessagesPage() {
   const [chats, setChats] = useState([]);
@@ -255,7 +256,7 @@ export default function MessagesPage() {
           initial={{ x: -300, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-80 bg-gray-900 border-r border-gray-800 flex flex-col"
+          className={`${selectedChat ? 'hidden lg:flex' : 'flex'} w-full lg:w-80 bg-gray-900 border-r border-gray-800 flex-col`}
         >
           {/* Header */}
           <div className="p-6 border-b border-gray-800">
@@ -488,15 +489,19 @@ export default function MessagesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="flex-1 bg-gray-900"
+          className={`${selectedChat ? 'flex' : 'hidden lg:flex'} flex-1 bg-gray-900`}
         >
           <ChatBox
             user={user}
             selectedChat={selectedChat}
             onMessageSent={handleMessageSent}
+            onBackToChats={() => setSelectedChat(null)}
           />
         </motion.div>
       </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

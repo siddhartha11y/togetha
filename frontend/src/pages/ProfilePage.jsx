@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
 import { Images, Clapperboard, Bookmark } from "lucide-react";
 import api from "../api/axios";
 import Sidebar from "../components/Sidebar";
+import MobileBottomNav from "../components/MobileBottomNav";
 import { toast } from "react-toastify";
 
 export default function Profile() {
@@ -15,6 +16,7 @@ export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toastShownRef = useRef(false);
 
@@ -92,28 +94,38 @@ export default function Profile() {
   const isMyProfile = currentUser && currentUser._id === user._id;
 
   return (
-    <div className="bg-black text-white min-h-screen flex">
-      {/* Sidebar */}
-      <div className="hidden md:block border-r border-gray-800 w-64">
-        <Sidebar user={currentUser} />
+    <div className="bg-black text-white min-h-screen">
+      {/* Navbar */}
+      <div className="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md text-white shadow-lg z-50 lg:pl-[256px] h-[64px] flex items-center justify-between px-4 border-b border-gray-800">
+        <h1 className="text-2xl lg:text-3xl font-extrabold text-purple-400 tracking-wide ml-12 lg:ml-0">
+          togetha
+        </h1>
       </div>
 
-      {/* Main profile section */}
-      <div className="flex-1 flex flex-col items-center">
-        <div className="w-full max-w-5xl px-4 mt-8">
+      <div className="flex">
+        {/* Sidebar */}
+        <Sidebar 
+          user={currentUser} 
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+
+        {/* Main profile section */}
+        <div className="lg:ml-[256px] pt-[64px] flex-1 flex flex-col items-center pb-16 lg:pb-0">
+          <div className="w-full max-w-5xl px-2 lg:px-4 mt-4 lg:mt-8">
           {/* Profile header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-16">
-            <div className="flex justify-center sm:justify-start">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-16">
+            <div className="flex justify-center lg:justify-start">
               <img
                 src={user.profilePicture ? `${import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://togetha.onrender.com"}${user.profilePicture}` : "/avatar.png"}
                 alt="Profile"
-                className="w-36 h-36 rounded-full object-cover border border-gray-500"
+                className="w-24 h-24 lg:w-36 lg:h-36 rounded-full object-cover border border-gray-500"
               />
             </div>
 
-            <div className="flex-1 mt-6 sm:mt-0">
-              <div className="flex items-center space-x-4 mb-4">
-                <h2 className="text-2xl">{user.username}</h2>
+            <div className="flex-1 mt-4 lg:mt-0 text-center lg:text-left">
+              <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4 mb-4">
+                <h2 className="text-xl lg:text-2xl">{user.username}</h2>
 
                 {isMyProfile ? (
                   <>
@@ -230,6 +242,9 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

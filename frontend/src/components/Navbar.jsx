@@ -116,26 +116,26 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md text-white shadow-lg z-50 pl-[256px] h-[64px] flex items-center justify-between px-4 border-b border-gray-800">
+    <nav className="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md text-white shadow-lg z-50 lg:pl-[256px] h-[64px] flex items-center justify-between px-4 border-b border-gray-800">
       {/* Logo */}
       <motion.h1
-        className="text-3xl font-extrabold text-purple-400 tracking-wide cursor-pointer"
+        className="text-2xl lg:text-3xl font-extrabold text-purple-400 tracking-wide cursor-pointer ml-12 lg:ml-0"
         whileHover={{ scale: 1.05, textShadow: "0 0 15px #6C63FF" }}
         onClick={() => navigate("/home")}
       >
         togetha
       </motion.h1>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 lg:gap-4">
         {/* 🔍 Search */}
         <div className="relative" ref={searchRef}>
           <FiSearch
-            className="text-2xl cursor-pointer"
+            className="text-xl lg:text-2xl cursor-pointer"
             onClick={() => setSearchOpen(!searchOpen)}
           />
 
           {searchOpen && (
-  <div className="absolute right-0 mt-2 w-80 bg-gray-900 rounded-lg shadow-lg p-3 z-50">
+  <div className="absolute right-0 mt-2 w-80 lg:w-80 w-[90vw] max-w-sm bg-gray-900 rounded-lg shadow-lg p-3 z-50">
     <input
       type="text"
       placeholder={`Search ${searchType}...`}
@@ -254,8 +254,8 @@ export default function Navbar() {
           className="relative cursor-pointer"
           onClick={() => setShowNotificationModal(true)}
         >
-          <div className="p-2 rounded-full hover:bg-gray-800 transition-colors">
-            <Bell size={24} className="text-gray-300 hover:text-purple-400" />
+          <div className="p-1 lg:p-2 rounded-full hover:bg-gray-800 transition-colors">
+            <Bell size={20} className="lg:size-6 text-gray-300 hover:text-purple-400" />
           </div>
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full w-5 h-5 flex items-center justify-center">
@@ -297,8 +297,8 @@ export default function Navbar() {
           onClick={handleLogout}
           className="flex items-center gap-2 text-gray-300 hover:text-red-400 transition-all duration-300"
         >
-          <LogOut size={20} />
-          <span className="hidden sm:inline font-medium">Logout</span>
+          <LogOut size={18} className="lg:size-5" />
+          <span className="hidden lg:inline font-medium">Logout</span>
         </motion.button>
       </div>
 

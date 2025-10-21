@@ -40,7 +40,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
+    <div className="w-full max-w-2xl mx-auto space-y-4 lg:space-y-6 pb-4">
       {posts.map((post) => (
         <Post key={post._id} post={post} currentUser={currentUser} />
       ))}
