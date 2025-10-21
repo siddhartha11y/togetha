@@ -44,15 +44,25 @@ app.use(cookieParser());
 // Serve uploaded images statically at /images URL prefix
 // So that requests to /images/uploads/filename.jpg serve files from public/images/uploads/
 app.use("/images", (req, res, next) => {
-  const imagePath = path.join(process.cwd(), "public/images", req.path);
-  const defaultAvatar = path.join(process.cwd(), "public/images/default-avatar.svg");
+  const imagePath = path.join(process.cwd(), "backend/public/images", req.path);
+  const defaultAvatar = path.join(process.cwd(), "backend/public/images/default-avatar.svg");
   
   // Check if the requested image exists
   if (fs.existsSync(imagePath)) {
     res.sendFile(imagePath);
   } else {
     // Serve default avatar for missing images
-    res.sendFile(defaultAvatar);
+    if (fs.existsSync(defaultAvatar)) {
+      res.sendFile(defaultAvatar);
+    } else {
+      // If even default avatar doesn't exist, send a simple SVG placeholder
+      const svgPlaceholder = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="40" fill="#e0e0e0" stroke="#ccc" stroke-width="2"/>
+        <text x="50" y="55" text-anchor="middle" font-family="Arial" font-size="12" fill="#666">?</text>
+      </svg>`;
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(svgPlaceholder);
+    }
   }
 });
 
