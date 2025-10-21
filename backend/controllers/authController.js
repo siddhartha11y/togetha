@@ -3,6 +3,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Notification from "../models/notificationModel.js";
 
+// Helper function to get the correct protocol
+const getProtocol = (req) => {
+  return process.env.NODE_ENV === "production" ? "https" : req.protocol;
+};
+
 // Register Controller
 export async function authRegister(req, res) {
   try {
@@ -56,7 +61,7 @@ export async function authRegister(req, res) {
         username: savedUser.username,
         email: savedUser.email,
         profilePicture: savedUser.profilePicture
-          ? `${req.protocol}://${req.get("host")}${savedUser.profilePicture}`
+          ? `${process.env.NODE_ENV === "production" ? "https" : req.protocol}://${req.get("host")}${savedUser.profilePicture}`
           : null,
         bio: savedUser.bio,
       },
@@ -108,7 +113,7 @@ export async function authLogin(req, res) {
         username: user.username,
         email: user.email,
         profilePicture: user.profilePicture
-          ? `${req.protocol}://${req.get("host")}${user.profilePicture}`
+          ? `${process.env.NODE_ENV === "production" ? "https" : req.protocol}://${req.get("host")}${user.profilePicture}`
           : null,
         bio: user.bio,
       },

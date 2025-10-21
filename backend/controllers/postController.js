@@ -2,6 +2,11 @@ import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
 
+// Helper function to get the correct protocol
+const getProtocol = (req) => {
+  return process.env.NODE_ENV === "production" ? "https" : req.protocol;
+};
+
 
 export const createPost = async (req, res) => {
   try {
@@ -18,7 +23,7 @@ export const createPost = async (req, res) => {
 
     // Get full image URL
     const imagePath = `/images/uploads/${req.file.filename}`;
-    const fullImageUrl = `${req.protocol}://${req.get("host")}${imagePath}`;
+    const fullImageUrl = `${getProtocol(req)}://${req.get("host")}${imagePath}`;
 
     // Fetch the author’s details once
     const author = await User.findById(authorId).select(
@@ -29,7 +34,7 @@ export const createPost = async (req, res) => {
     }
 
     const profilePictureUrl = author.profilePicture
-      ? `${req.protocol}://${req.get("host")}${author.profilePicture}`
+      ? `${getProtocol(req)}://${req.get("host")}${author.profilePicture}`
       : null;
 
     // Create post with author reference AND embedded public details
@@ -71,7 +76,7 @@ export const getAllPosts = async (req, res) => {
       return {
         ...postObj,
         imageUrl: post.imageUrl
-          ? `${req.protocol}://${req.get("host")}${post.imageUrl.replace(
+          ? `${getProtocol(req)}://${req.get("host")}${post.imageUrl.replace(
               /^https?:\/\/[^/]+/,
               ""
             )}`
@@ -79,7 +84,7 @@ export const getAllPosts = async (req, res) => {
         author: {
           ...post.author.toObject(),
           profilePicture: post.author?.profilePicture
-            ? `${req.protocol}://${req.get("host")}${
+            ? `${getProtocol(req)}://${req.get("host")}${
                 post.author.profilePicture
               }`
             : null,
@@ -157,7 +162,7 @@ export const addComment = async (req, res) => {
       author: {
         ...comment.author.toObject(),
         profilePicture: comment.author?.profilePicture
-          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${comment.author.profilePicture}`
           : null,
       }
     }));
@@ -193,7 +198,7 @@ export const getComments = async (req, res) => {
       author: {
         ...comment.author.toObject(),
         profilePicture: comment.author?.profilePicture
-          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${comment.author.profilePicture}`
           : null,
       }
     }));
@@ -231,7 +236,7 @@ export const editComment = async (req, res) => {
       author: {
         ...comment.author.toObject(),
         profilePicture: comment.author?.profilePicture
-          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${comment.author.profilePicture}`
           : null,
       }
     }));
@@ -270,7 +275,7 @@ export const deleteComment = async (req, res) => {
       author: {
         ...comment.author.toObject(),
         profilePicture: comment.author?.profilePicture
-          ? `${req.protocol}://${req.get("host")}${comment.author.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${comment.author.profilePicture}`
           : null,
       }
     }));
@@ -343,7 +348,7 @@ export async function updatePost(req, res) {
     }
 
     // Normalize URLs like you do elsewhere
-    const host = `${req.protocol}://${req.get("host")}`;
+    const host = `${getProtocol(req)}://${req.get("host")}`;
     const normalize = (p) =>
       p ? `${host}${String(p).replace(/^https?:\/\/[^/]+/, "")}` : null;
 
@@ -508,12 +513,12 @@ export const getTrendingPosts = async (req, res) => {
     const formattedPosts = posts.map(post => ({
       ...post,
       imageUrl: post.imageUrl
-        ? `${req.protocol}://${req.get("host")}${post.imageUrl.replace(/^https?:\/\/[^/]+/, "")}`
+        ? `${getProtocol(req)}://${req.get("host")}${post.imageUrl.replace(/^https?:\/\/[^/]+/, "")}`
         : null,
       author: {
         ...post.author,
         profilePicture: post.author?.profilePicture
-          ? `${req.protocol}://${req.get("host")}${post.author.profilePicture}`
+          ? `${getProtocol(req)}://${req.get("host")}${post.author.profilePicture}`
           : null,
       },
       likes: post.likes.length,
