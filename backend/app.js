@@ -1,23 +1,26 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const http = require("http");
-const { Server } = require("socket.io");
-const path = require("path");
-const authRoutes = require("./routes/authRoutes.js");
-const postRoutes = require("./routes/postRoutes.js");
-const notificationRoutes = require("./routes/notificationRoutes.js");
-const chatRoutes = require("./routes/chatRoutes.js");
-const messageRoutes = require("./routes/messageRoutes.js");
-const storyRoutes = require("./routes/storyRoutes.js");
-const musicRoutes = require("./routes/musicRoutes.js");
-const cookieParser = require("cookie-parser");
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
+import path from "path";
+import authRoutes from "./routes/authRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import storyRoutes from "./routes/storyRoutes.js";
+import musicRoutes from "./routes/musicRoutes.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const app = express();
 
-// __dirname is available in CommonJS by default
+// __dirname replacement for ESM
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware to parse JSON & form data
 app.use(express.json());
@@ -253,4 +256,4 @@ server.listen(PORT, () => {
   console.log(`Server + Socket.io running on port ${PORT}`);
 });
 
-module.exports = app;
+export default app;

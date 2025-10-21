@@ -1,7 +1,7 @@
-const express = require('express');
-const verifytoken = require('../middleware/JWT.auth.js');
-const uploadProfile = require('../config/multerProfile.js');
-const { authRegister, authLogin, authProfile, updateProfile, authLogout, followUser, unfollowUser, getUserByUsername, searchUsers, getFollowing, getFollowers } = require("../controllers/authController.js");
+import express from 'express';
+import verifytoken from '../middleware/JWT.auth.js';
+import uploadProfile from '../config/multerProfile.js';
+import { authRegister, authLogin, authProfile, updateProfile, authLogout, followUser, unfollowUser, getUserByUsername, searchUsers, getFollowing, getFollowers } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -20,6 +20,6 @@ router.get("/:username", getUserByUsername);
 router.put("/:id/follow", verifytoken, followUser);
 router.put("/:id/unfollow", verifytoken, unfollowUser);
 
-module.exports = router;
+export default router;
 
 
