@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
+import fs from "fs";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
@@ -42,7 +43,18 @@ app.use(cookieParser());
 
 // Serve uploaded images statically at /images URL prefix
 // So that requests to /images/uploads/filename.jpg serve files from public/images/uploads/
-app.use("/images", express.static(path.join(process.cwd(), "public/images")));
+app.use("/images", (req, res, next) => {
+  const imagePath = path.join(process.cwd(), "public/images", req.path);
+  const defaultAvatar = path.join(process.cwd(), "public/images/default-avatar.svg");
+  
+  // Check if the requested image exists
+  if (fs.existsSync(imagePath)) {
+    res.sendFile(imagePath);
+  } else {
+    // Serve default avatar for missing images
+    res.sendFile(defaultAvatar);
+  }
+});
 
 // Connect to MongoDB
 mongoose
